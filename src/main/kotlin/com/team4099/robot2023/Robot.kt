@@ -172,7 +172,6 @@ object Robot : LoggedRobot() {
       .recordOutput("LoggedRobot/totalMS", (Clock.realTimestamp - startTime).inMilliseconds)
   }
 
-
   override fun teleopInit() {
     FMSData.allianceColor = DriverStation.getAlliance()
     RobotContainer.mapTeleopControls()

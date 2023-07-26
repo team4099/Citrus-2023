@@ -12,7 +12,6 @@ import com.team4099.robot2023.subsystems.drivetrain.gyro.GyroIO
 import com.team4099.robot2023.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2023.util.driver.Ryan
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.CommandBase
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.derived.Angle
 
@@ -41,9 +40,7 @@ object RobotContainer {
       )
   }
 
-
-  fun requestSuperstructureIdle() {
-  }
+  fun requestSuperstructureIdle() {}
 
   fun regenerateProfiles() {}
 
