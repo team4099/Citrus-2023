@@ -45,7 +45,7 @@ object ArmIONeo : ArmIO {
 
   private val armPIDController: SparkMaxPIDController = leaderSparkMax.pidController
 
-  // uses the absolute encoder position to calculate the arm position
+  // Uses the absolute encoder position to calculate the arm position
   private val armAbsolutePosition: Angle
     get() {
       return (throughBoreEncoder.absolutePosition.rotations - ArmConstants.ABSOLUTE_ENCODER_OFFSET).inDegrees

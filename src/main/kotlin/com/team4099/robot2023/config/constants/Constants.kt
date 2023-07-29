@@ -104,10 +104,6 @@ object Constants {
     const val REV_ENCODER_PORT = 7
 
     const val INVERT_FOLLOWER = true
-
-    val homingPosition = -9.598.degrees
-    val minRotation = -9.598.degrees
-    val maxRotation = 113.706.degrees
   }
 
   object Gyro {
