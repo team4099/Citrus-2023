@@ -115,4 +115,9 @@ object Constants {
     const val LED_CANDLE_ID = 61
     const val LED_BLINKEN_ID = 1
   }
+
+  object Manipulator {
+    const val ROLLER_MOTOR = 0
+    const val WRIST_MOTOR = 0
+  }
 }
