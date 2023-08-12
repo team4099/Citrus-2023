@@ -23,6 +23,10 @@ object ManipulatorConstants {
     val ARM_KA = 0.04.volts / 1.0.radians.perSecond.perSecond
   }
 
+  val HOMING_APPLIED_VOLTAGE = 0.volts
+  val HOMING_STALL_TIME_THRESHOLD = 0.seconds
+  val HOMING_STALL_CURRENT = 0.amps
+
   // TODO get the gear ratio
   val ROLLER_GEAR_RATIO = 1.0.gearRatio
   val ROLLER_VOLTAGE_COMPENSATION = 12.volts

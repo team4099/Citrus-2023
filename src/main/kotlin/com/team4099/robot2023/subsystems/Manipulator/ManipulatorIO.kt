@@ -25,6 +25,8 @@ import org.team4099.lib.units.perSecond
 
 interface ManipulatorIO {
   class ManipulatorIOInputs : LoggableInputs {
+    val statorCurrent = 0.amps
+    val isSimulating = false
     var wristPosition: Angle = 0.0.degrees
     var wristVelocity = 0.0.degrees.perSecond
 
@@ -52,6 +54,7 @@ interface ManipulatorIO {
       table?.put("rollerSupplyCurrentAmps", rollerSupplyCurrent.inAmperes)
       table?.put("rollerStatorCurrentAmps", rollerStatorCurrent.inAmperes)
       table?.put("rollerTempCelsius", rollerTemp.inCelsius)
+      table?.put("statorCurrent", statorCurrent.inAmperes)
     }
 
     override fun fromLog(table: LogTable?) {
