@@ -25,6 +25,7 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.sparkMaxLinearMechanismSensor
 import kotlin.math.absoluteValue
+
 object ElevatorIONeo : ElevatorIO {
 
   private val leaderSparkMax =
@@ -49,19 +50,13 @@ object ElevatorIONeo : ElevatorIO {
 
     // basic settings
     leaderSparkMax.enableVoltageCompensation(ElevatorConstants.VOLTAGE_COMPENSATION.inVolts)
-
-    leaderSparkMax.inverted = true
-
     leaderSparkMax.setSmartCurrentLimit(ElevatorConstants.PHASE_CURRENT_LIMIT.inAmperes.toInt())
 
+    leaderSparkMax.inverted = Constants.Elevator.INVERT_MOTOR
     leaderSparkMax.openLoopRampRate = ElevatorConstants.RAMP_RATE.inPercentOutputPerSecond
-
     leaderSparkMax.idleMode = CANSparkMax.IdleMode.kBrake
 
-    // makes follower motor output exact same power as leader
-
     leaderPIDController.ff = 0.0
-
     leaderSparkMax.burnFlash()
 
     MotorChecker.add(
@@ -122,9 +117,9 @@ object ElevatorIONeo : ElevatorIO {
    * limit
    *
    * @param position the target position the PID controller will use
-   * @param feedforward change in voltage to account for external forces on the system
+   * @param feedForward change in voltage to account for external forces on the system
    */
-  override fun setPosition(position: Length, feedforward: ElectricalPotential) {
+  override fun setPosition(position: Length, feedForward: ElectricalPotential) {
     leaderPIDController.setReference(
       leaderSensor.positionToRawUnits(
         clamp(
@@ -135,7 +130,7 @@ object ElevatorIONeo : ElevatorIO {
       ),
       CANSparkMax.ControlType.kPosition,
       0,
-      feedforward.inVolts,
+      feedForward.inVolts,
     )
   }
 
