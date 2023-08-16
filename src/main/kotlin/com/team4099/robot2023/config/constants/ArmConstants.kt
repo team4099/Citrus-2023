@@ -1,11 +1,15 @@
 package com.team4099.robot2023.config.constants
 
 import org.team4099.lib.units.base.amps
+import org.team4099.lib.units.base.grams
+import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.gearRatio
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 
 object ArmConstants {
@@ -37,4 +41,6 @@ object ArmConstants {
   val MAX_VELOCITY = 360.degrees.perSecond  // TODO: TUNE
   val MAX_ACCELERATION = 600.degrees.perSecond.perSecond  // TODO: TUNE
   val TOLERANCE = 1.degrees // TODO: TUNE
+  val MOMENT_OF_INERTIA = 0.0000478.kilo.grams * 1.0.meters.squared
+  val ARM_LENGTH = 25.5.inches  // Use first stage height
 }
