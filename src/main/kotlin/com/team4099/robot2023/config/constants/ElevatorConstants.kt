@@ -4,13 +4,18 @@ import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.percent
+import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.gearRatio
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 
 object ElevatorConstants {
+  val ELEVATOR_ANGLE = 45.degrees
+  val ELEVATOR_MAX_RETRACTION = 0.meters
+  val CARRIAGE_MASS = 10.pounds
   val REAL_KP = 0.85.volts / 1.inches // TODO: Tune later in sim
   val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
   val REAL_KD = 0.0.volts / (1.inches.perSecond)
