@@ -199,6 +199,9 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
         ManipulatorConstants.PID.ARM_KA
       )
     } else {
+      kP.initDefault(ManipulatorConstants.PID.SIM_KP)
+      kI.initDefault(ManipulatorConstants.PID.SIM_KI)
+      kD.initDefault(ManipulatorConstants.PID.SIM_KD)
 
       wristFeedforward =
         ArmFeedforward(

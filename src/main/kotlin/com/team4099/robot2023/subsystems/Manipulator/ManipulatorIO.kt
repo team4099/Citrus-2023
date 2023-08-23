@@ -26,7 +26,7 @@ import org.team4099.lib.units.perSecond
 interface ManipulatorIO {
   class ManipulatorIOInputs : LoggableInputs {
     val statorCurrent = 0.amps
-    val isSimulating = false
+    var isSimulating = false
     var wristPosition: Angle = 0.0.degrees
     var wristVelocity = 0.0.degrees.perSecond
 
