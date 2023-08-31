@@ -1,6 +1,7 @@
 package com.team4099.robot2023.config.constants
 
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.milli
 
 typealias GamePiece = Constants.Universal.GamePiece
@@ -97,18 +98,20 @@ object Constants {
     val BACK_RIGHT_MODULE_NAME = "Back Right Wheel"
   }
 
+  object Arm {
+    const val LEADER_MOTOR_ID = 8
+    const val FOLLOWER_MOTOR_ID = 9
+    const val REV_ENCODER_PORT = 7
+
+    const val INVERT_FOLLOWER = true
+  }
+
   object Gyro {
     const val PIGEON_2_ID = 1
   }
 
   object Alert {
     val TABS = arrayOf("Pre-match", "In-match")
-  }
-
-  object ExampleIntake {
-    // fake values
-    const val INTAKE_MOTOR = 50
-    const val ARM_SOLENOID = 2
   }
 
   object Led {
