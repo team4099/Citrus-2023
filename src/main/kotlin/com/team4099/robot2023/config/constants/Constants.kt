@@ -106,6 +106,11 @@ object Constants {
     const val INVERT_FOLLOWER = true
   }
 
+  object Elevator {
+    const val LEADER_MOTOR_ID = 6
+    const val INVERT_MOTOR = true
+  }
+
   object Gyro {
     const val PIGEON_2_ID = 1
   }
