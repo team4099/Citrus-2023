@@ -90,58 +90,58 @@ interface ManipulatorIO {
       table?.getDouble("rollerTempCelsius", rollerTemp.inCelsius)?.let { rollerTemp = it.celsius }
     }
   }
-    fun updateInputs(inputs: ManipulatorIOInputs)
+  fun updateInputs(inputs: ManipulatorIOInputs)
 
-    /**
-     * Sets the voltage of the roller motor but also checks to make sure the voltage doesn't exceed
-     * limit
-     *
-     * @param voltage the voltage to set the motor to
-     */
-    fun setRollerVoltage(voltage: ElectricalPotential) {}
+  /**
+   * Sets the voltage of the roller motor but also checks to make sure the voltage doesn't exceed
+   * limit
+   *
+   * @param voltage the voltage to set the motor to
+   */
+  fun setRollerVoltage(voltage: ElectricalPotential) {}
 
-    /**
-     * Sets the position of the wrist motor, specifically the length of the wrist
-     *
-     * @param wristPosition the position to set the wrist to
-     * @param feedforward changes voltages to compensate for external forces
-     */
-    fun setWristPosition(wristPosition: Angle, feedforward: ElectricalPotential) {}
+  /**
+   * Sets the position of the wrist motor, specifically the length of the wrist
+   *
+   * @param wristPosition the position to set the wrist to
+   * @param feedforward changes voltages to compensate for external forces
+   */
+  fun setWristPosition(wristPosition: Angle, feedforward: ElectricalPotential) {}
 
-    /**
-     * Sets the wrist motor voltage, ensures the voltage is limited to battery voltage compensation
-     *
-     * @param voltage the voltage to set the wrist motor to
-     */
-    fun setWristVoltage(voltage: ElectricalPotential) {}
+  /**
+   * Sets the wrist motor voltage, ensures the voltage is limited to battery voltage compensation
+   *
+   * @param voltage the voltage to set the wrist motor to
+   */
+  fun setWristVoltage(voltage: ElectricalPotential) {}
 
-    /**
-     * Updates the PID constants using the implementation controller
-     *
-     * @param kP accounts for linear error
-     * @param kI accounts for integral error
-     * @param kD accounts for derivative error
-     */
-    fun configPID(
-      kP: ProportionalGain<Radian, Volt>,
-      kI: IntegralGain<Radian, Volt>,
-      kD: DerivativeGain<Radian, Volt>
-    ) {}
+  /**
+   * Updates the PID constants using the implementation controller
+   *
+   * @param kP accounts for linear error
+   * @param kI accounts for integral error
+   * @param kD accounts for derivative error
+   */
+  fun configPID(
+    kP: ProportionalGain<Radian, Volt>,
+    kI: IntegralGain<Radian, Volt>,
+    kD: DerivativeGain<Radian, Volt>
+  ) {}
 
-    /** Sets the current encoder position to be the zero value */
-    fun zeroEncoder() {}
+  /** Sets the current encoder position to be the zero value */
+  fun zeroEncoder() {}
 
-    /**
-     * Sets the roller motor brake mode
-     *
-     * @param brake if it brakes
-     */
-    fun setRollerBrakeMode(brake: Boolean) {}
+  /**
+   * Sets the roller motor brake mode
+   *
+   * @param brake if it brakes
+   */
+  fun setRollerBrakeMode(brake: Boolean) {}
 
-    /**
-     * Sets the roller motor brake mode
-     *
-     * @param brake if it brakes
-     */
-    fun setWristBrakeMode(brake: Boolean)
+  /**
+   * Sets the roller motor brake mode
+   *
+   * @param brake if it brakes
+   */
+  fun setWristBrakeMode(brake: Boolean)
 }

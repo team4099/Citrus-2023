@@ -48,8 +48,8 @@ object ArmIONeo : ArmIO {
   // Uses the absolute encoder position to calculate the arm position
   private val armAbsolutePosition: Angle
     get() {
-      return (throughBoreEncoder.absolutePosition.rotations - ArmConstants.ABSOLUTE_ENCODER_OFFSET).inDegrees
-        .IEEErem(360.0)
+      return (throughBoreEncoder.absolutePosition.rotations - ArmConstants.ABSOLUTE_ENCODER_OFFSET)
+        .inDegrees.IEEErem(360.0)
         .degrees
     }
 

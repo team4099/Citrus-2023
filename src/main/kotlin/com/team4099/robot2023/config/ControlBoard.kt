@@ -34,5 +34,5 @@ object ControlBoard {
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
 
-  val manipulatorTest = Trigger {driver.aButton}
+  val manipulatorTest = Trigger { driver.aButton }
 }

@@ -60,11 +60,7 @@ object ArmIOSim : ArmIO {
   }
 
   private val armController =
-    PIDController(
-      ArmConstants.PID.SIM_KP,
-      ArmConstants.PID.SIM_KI,
-      ArmConstants.PID.SIM_KD
-    )
+    PIDController(ArmConstants.PID.SIM_KP, ArmConstants.PID.SIM_KI, ArmConstants.PID.SIM_KD)
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
@@ -104,11 +100,7 @@ object ArmIOSim : ArmIO {
    */
   override fun setArmVoltage(voltage: ElectricalPotential) {
     armSim.setInputVoltage(
-      clamp(
-        voltage,
-        -ArmConstants.VOLTAGE_COMPENSATION,
-        ArmConstants.VOLTAGE_COMPENSATION
-      )
+      clamp(voltage, -ArmConstants.VOLTAGE_COMPENSATION, ArmConstants.VOLTAGE_COMPENSATION)
         .inVolts
     )
   }

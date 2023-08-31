@@ -6,7 +6,6 @@ import com.revrobotics.SparkMaxPIDController
 import com.team4099.lib.math.clamp
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.ManipulatorConstants
-import org.littletonrobotics.junction.Logger
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
@@ -19,7 +18,6 @@ import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.asDrivenOverDriving
-import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.sparkMaxAngularMechanismSensor
@@ -89,7 +87,6 @@ object ManipulatorIONeo : ManipulatorIO {
 
     // same math as  rollersupplycurrent
     inputs.wristSupplyCurrent = inputs.wristStatorCurrent * wristSparkMax.appliedOutput
-
   }
 
   /**
@@ -156,7 +153,6 @@ object ManipulatorIONeo : ManipulatorIO {
     wristPIDController.i = wristSensor.integralPositionGainToRawUnits(kI)
     wristPIDController.d = wristSensor.derivativePositionGainToRawUnits(kD)
   }
-
 
   /**
    * Sets the roller motor brake mode

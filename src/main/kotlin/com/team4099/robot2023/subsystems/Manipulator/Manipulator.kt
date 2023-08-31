@@ -28,7 +28,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
-class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
+class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
 
   val inputs = ManipulatorIO.ManipulatorIOInputs()
 
@@ -42,13 +42,14 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
     )
   private val kD =
     LoggedTunableValue(
-      "Manipulator/kD",
-      Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
+      "Manipulator/kD", Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
     )
 
   private val intakeAngle =
     LoggedTunableValue(
-      "Manipulator/intakeAngle", ManipulatorConstants.INTAKE_ANGLE, Pair({ it.inDegrees }, { it.degrees })
+      "Manipulator/intakeAngle",
+      ManipulatorConstants.INTAKE_ANGLE,
+      Pair({ it.inDegrees }, { it.degrees })
     )
 
   private val outtakeAngle =
@@ -109,23 +110,20 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
 
   var currentState: ManipulatorState = ManipulatorState.UNINITIALIZED
   var currentRequest: Request.ManipulatorRequest = Request.ManipulatorRequest.HomingWrist()
-    set(value){
-      when(value){
+    set(value) {
+      when (value) {
         is Request.ManipulatorRequest.OpenLoop -> {
           wristVoltageTarget = value.wristVoltage
           rollerVoltageTarget = value.rollerVoltage
         }
-
         is Request.ManipulatorRequest.TargetingPosition -> {
           wristPositionTarget = value.wristPosition
           rollerVoltageTarget = value.rollerVoltage
         }
-
         else -> {}
       }
       field = value
     }
-
 
   val forwardLimitReached: Boolean
     get() = inputs.wristPosition >= ManipulatorConstants.ARM_MAX_ROTATION
@@ -185,19 +183,19 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
         ManipulatorConstants.MANIPULATOR_WAIT_BEFORE_DETECT_CURRENT_SPIKE
     }
 
-
   init {
     if (RobotBase.isReal()) {
       kP.initDefault(ManipulatorConstants.PID.NEO_KP)
       kI.initDefault(ManipulatorConstants.PID.NEO_KI)
       kD.initDefault(ManipulatorConstants.PID.NEO_KD)
 
-      var wristFeedforward = ArmFeedforward(
-        ManipulatorConstants.PID.ARM_KS,
-        ManipulatorConstants.PID.ARM_KG,
-        ManipulatorConstants.PID.ARM_KV,
-        ManipulatorConstants.PID.ARM_KA
-      )
+      var wristFeedforward =
+        ArmFeedforward(
+          ManipulatorConstants.PID.ARM_KS,
+          ManipulatorConstants.PID.ARM_KG,
+          ManipulatorConstants.PID.ARM_KV,
+          ManipulatorConstants.PID.ARM_KA
+        )
     } else {
       kP.initDefault(ManipulatorConstants.PID.SIM_KP)
       kI.initDefault(ManipulatorConstants.PID.SIM_KI)
@@ -224,16 +222,21 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
 
     Logger.getInstance().recordOutput("Manipulator/currentState", currentState.name)
 
-    Logger.getInstance().recordOutput("Manipulator/requestedState", currentRequest.javaClass.simpleName)
+    Logger.getInstance()
+      .recordOutput("Manipulator/requestedState", currentRequest.javaClass.simpleName)
 
-    Logger.getInstance().recordOutput("Manipulator/wristPositionTarget", wristPositionTarget.inDegrees)
+    Logger.getInstance()
+      .recordOutput("Manipulator/wristPositionTarget", wristPositionTarget.inDegrees)
 
     Logger.getInstance().recordOutput("Manipulator/wristVoltageTarget", wristVoltageTarget.inVolts)
 
     Logger.getInstance()
       .recordOutput("Manipulator/rollerVoltageTarget", rollerVoltageTarget.inVolts)
 
-    Logger.getInstance().recordOutput("Manipulator/isAtCommandedState", currentState.equivalentToRequest(currentRequest))
+    Logger.getInstance()
+      .recordOutput(
+        "Manipulator/isAtCommandedState", currentState.equivalentToRequest(currentRequest)
+      )
 
     Logger.getInstance()
       .recordOutput("Manipulator/lastCommandedAngle", lastWristPositionTarget.inDegrees)
@@ -242,15 +245,11 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
 
     Logger.getInstance().recordOutput("Manipulator/reverseLimitReached", reverseLimitReached)
 
-
-
-
     var nextState = currentState
-    when(currentState) {
+    when (currentState) {
       ManipulatorState.UNINITIALIZED -> {
         nextState = fromRequestToState(currentRequest)
       }
-
       ManipulatorState.HOMING_WRIST -> {
         // Outputs
         if (inputs.statorCurrent < ManipulatorConstants.HOMING_STALL_CURRENT) {
@@ -275,7 +274,6 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
           nextState = fromRequestToState(currentRequest)
         }
       }
-
       ManipulatorState.OPEN_LOOP_REQUEST -> {
         // Outputs
         if (rollerVoltageTarget != lastRollerVoltage) {
@@ -293,7 +291,6 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
           lastRollerVoltage = -1337.volts
         }
       }
-
       ManipulatorState.TARGETING_POSITION -> {
         // Outputs
         if (wristPositionTarget != lastWristPositionTarget) {
@@ -312,7 +309,8 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
             )
           timeProfileGeneratedAt = Clock.fpgaTime
 
-          // This statement is only run when the wristPositionTarget is first noticed to be different
+          // This statement is only run when the wristPositionTarget is first noticed to be
+          // different
           // than the previous setpoint the wrist went to.
           lastWristPositionTarget = wristPositionTarget
           lastIntakeRunTime = Clock.fpgaTime
@@ -327,7 +325,9 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
         setWristPosition(profileOutput)
 
         Logger.getInstance()
-          .recordOutput("GroundIntake/completedMotionProfile", wristProfile.isFinished(timeElapsed))
+          .recordOutput(
+            "GroundIntake/completedMotionProfile", wristProfile.isFinished(timeElapsed)
+          )
 
         Logger.getInstance()
           .recordOutput("GroundIntake/profilePositionDegrees", profileOutput.position.inDegrees)
@@ -384,9 +384,8 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
   }
 
   fun setHomeVoltage() {
-      io.setWristVoltage(ManipulatorConstants.HOMING_APPLIED_VOLTAGE)
+    io.setWristVoltage(ManipulatorConstants.HOMING_APPLIED_VOLTAGE)
   }
-
 
   /**
    * Sets the wrist position using the trapezoidal profile state
@@ -394,7 +393,6 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
    * @param setpoint.position Represents the position the wrist should go to
    * @param setpoint.velocity Represents the velocity the wrist should be at
    */
-
   private fun isOutOfBounds(velocity: AngularVelocity): Boolean {
     return (velocity > 0.0.degrees.perSecond && forwardLimitReached) ||
       (velocity < 0.0.degrees.perSecond && reverseLimitReached)
@@ -419,23 +417,27 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase(){
       io.setWristPosition(setpoint.position, feedforward)
     }
 
-    Logger.getInstance().recordOutput("Manipulator/wristTargetPosition", setpoint.position.inDegrees)
+    Logger.getInstance()
+      .recordOutput("Manipulator/wristTargetPosition", setpoint.position.inDegrees)
     Logger.getInstance()
       .recordOutput("Manipulator/wristTargetVelocity", setpoint.velocity.inDegreesPerSecond)
   }
 
-  companion object{
-    enum class ManipulatorState{
+  companion object {
+    enum class ManipulatorState {
       UNINITIALIZED,
       OPEN_LOOP_REQUEST,
       TARGETING_POSITION,
       HOMING_WRIST;
       inline fun equivalentToRequest(request: Request.ManipulatorRequest): Boolean {
-        return(
-          (request is Request.ManipulatorRequest.OpenLoop && this == OPEN_LOOP_REQUEST)
-            || (request is Request.ManipulatorRequest.TargetingPosition && this == TARGETING_POSITION)
-            || (request is Request.ManipulatorRequest.HomingWrist && this == HOMING_WRIST)
-        )
+        return (
+          (request is Request.ManipulatorRequest.OpenLoop && this == OPEN_LOOP_REQUEST) ||
+            (
+              request is Request.ManipulatorRequest.TargetingPosition &&
+                this == TARGETING_POSITION
+              ) ||
+            (request is Request.ManipulatorRequest.HomingWrist && this == HOMING_WRIST)
+          )
       }
     }
 

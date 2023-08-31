@@ -71,26 +71,34 @@ interface ArmIO {
       table?.getDouble("armVelocityDegreesPerSec", armVelocity.inDegreesPerSecond)?.let {
         armVelocity = it.degrees.perSecond
       }
-      table?.getDouble("leaderAppliedVoltage", leaderAppliedVoltage.inVolts)
-        ?.let { leaderAppliedVoltage = it.volts }
-      table?.getDouble("followerAppliedVoltage", followerAppliedVoltage.inVolts)
-        ?.let { followerAppliedVoltage = it.volts }
-      table?.getDouble("leaderSupplyCurrentAmps", leaderSupplyCurrent.inAmperes)
-        ?.let { leaderSupplyCurrent = it.amps }
-      table?.getDouble("followerSupplyCurrentAmps", followerSupplyCurrent.inAmperes)
-        ?.let { followerSupplyCurrent = it.amps }
-      table?.getDouble("leaderStatorCurrentAmps", leaderStatorCurrent.inAmperes)
-        ?.let { leaderStatorCurrent = it.amps }
-      table?.getDouble("followerStatorCurrentAmps", followerStatorCurrent.inAmperes)
-        ?.let { followerStatorCurrent = it.amps }
-      table?.getDouble("leaderTempCelsius", leaderTemp.inCelsius)
-        ?.let { leaderTemp = it.celsius }
-      table?.getDouble("followerTempCelsius", followerTemp.inCelsius)
-        ?.let { followerTemp = it.celsius }
-      table?.getDouble("leaderRawPositionDegrees", leaderRawPosition.inDegrees)
-        ?.let { leaderRawPosition = it.degrees }
-      table?.getDouble("followerRawPositionDegrees", followerRawPosition.inDegrees)
-        ?.let { followerRawPosition = it.degrees }
+      table?.getDouble("leaderAppliedVoltage", leaderAppliedVoltage.inVolts)?.let {
+        leaderAppliedVoltage = it.volts
+      }
+      table?.getDouble("followerAppliedVoltage", followerAppliedVoltage.inVolts)?.let {
+        followerAppliedVoltage = it.volts
+      }
+      table?.getDouble("leaderSupplyCurrentAmps", leaderSupplyCurrent.inAmperes)?.let {
+        leaderSupplyCurrent = it.amps
+      }
+      table?.getDouble("followerSupplyCurrentAmps", followerSupplyCurrent.inAmperes)?.let {
+        followerSupplyCurrent = it.amps
+      }
+      table?.getDouble("leaderStatorCurrentAmps", leaderStatorCurrent.inAmperes)?.let {
+        leaderStatorCurrent = it.amps
+      }
+      table?.getDouble("followerStatorCurrentAmps", followerStatorCurrent.inAmperes)?.let {
+        followerStatorCurrent = it.amps
+      }
+      table?.getDouble("leaderTempCelsius", leaderTemp.inCelsius)?.let { leaderTemp = it.celsius }
+      table?.getDouble("followerTempCelsius", followerTemp.inCelsius)?.let {
+        followerTemp = it.celsius
+      }
+      table?.getDouble("leaderRawPositionDegrees", leaderRawPosition.inDegrees)?.let {
+        leaderRawPosition = it.degrees
+      }
+      table?.getDouble("followerRawPositionDegrees", followerRawPosition.inDegrees)?.let {
+        followerRawPosition = it.degrees
+      }
     }
   }
 

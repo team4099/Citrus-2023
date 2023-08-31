@@ -5,7 +5,6 @@ import com.team4099.lib.logging.LoggedTunableNumber
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.ElevatorConstants
-import com.team4099.robot2023.subsystems.superstructure.Request.ElevatorRequest as ElevatorRequest
 import edu.wpi.first.wpilibj.RobotBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ElevatorFeedforward
@@ -26,6 +25,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.inInchesPerSecondPerSecond
 import org.team4099.lib.units.perSecond
+import com.team4099.robot2023.subsystems.superstructure.RobotRequest.ElevatorRobotRequest as ElevatorRequest
 
 class Elevator(val io: ElevatorIO) {
   val inputs = ElevatorIO.ElevatorInputs()

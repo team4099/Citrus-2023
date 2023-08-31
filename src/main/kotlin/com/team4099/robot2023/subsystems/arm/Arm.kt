@@ -6,13 +6,11 @@ import com.team4099.lib.requests.Request
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import edu.wpi.first.wpilibj.RobotBase
-import com.team4099.robot2023.subsystems.superstructure.Request.ArmRequest as ArmRequest
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.Length
-import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
@@ -29,6 +27,7 @@ import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
+import com.team4099.robot2023.subsystems.superstructure.RobotRequest.ArmRobotRequest as ArmRequest
 
 class Arm(private val io: ArmIO) {
   val inputs = ArmIO.ArmIOInputs()
@@ -41,8 +40,7 @@ class Arm(private val io: ArmIO) {
     )
   private val kD =
     LoggedTunableValue(
-      "Arm/kD",
-      Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
+      "Arm/kD", Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
     )
 
   private var timeProfileGeneratedAt = Clock.fpgaTime
@@ -50,10 +48,8 @@ class Arm(private val io: ArmIO) {
   private var prevArmSetpoint: TrapezoidProfile.State<Radian> =
     TrapezoidProfile.State(inputs.armPosition, inputs.armVelocity)
 
-  private var armConstraints = TrapezoidProfile.Constraints(
-    ArmConstants.MAX_VELOCITY,
-    ArmConstants.MAX_ACCELERATION
-  )
+  private var armConstraints =
+    TrapezoidProfile.Constraints(ArmConstants.MAX_VELOCITY, ArmConstants.MAX_ACCELERATION)
 
   private var armProfile =
     TrapezoidProfile(
@@ -62,12 +58,14 @@ class Arm(private val io: ArmIO) {
       prevArmSetpoint
     )
 
+  private var armFeedforward: ArmFeedforward
+
   val isAtTargetedPosition: Boolean
     get() =
       (
-        currentState == ArmState.TARGETING_POSITION
-          && armProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt)
-          && (inputs.armPosition - armPositionTarget).absoluteValue <= ArmConstants.TOLERANCE
+        currentState == ArmState.TARGETING_POSITION &&
+          armProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt) &&
+          (inputs.armPosition - armPositionTarget).absoluteValue <= ArmConstants.TOLERANCE
         )
 
   // Used to make sure that elevator attached to the arm can continue safely
@@ -93,15 +91,14 @@ class Arm(private val io: ArmIO) {
           ArmConstants.PID.ARM_KV,
           ArmConstants.PID.ARM_KA
         )
-    }
-    else {
+    } else {
       kP.initDefault(ArmConstants.PID.SIM_KP)
       kI.initDefault(ArmConstants.PID.SIM_KI)
       kD.initDefault(ArmConstants.PID.SIM_KD)
 
       armFeedforward =
         ArmFeedforward(
-          0.0.volts,  // Static friction doesn't exist in our simulation
+          0.0.volts, // Static friction doesn't exist in our simulation
           ArmConstants.PID.ARM_KG,
           ArmConstants.PID.ARM_KV,
           ArmConstants.PID.ARM_KA
@@ -109,8 +106,7 @@ class Arm(private val io: ArmIO) {
     }
   }
 
-  fun generateAndExecuteArmProfile(targetPosition: Length){
-  }
+  fun generateAndExecuteArmProfile(targetPosition: Length) {}
 
   fun periodic() {
     io.updateInputs(inputs)
@@ -176,13 +172,16 @@ class Arm(private val io: ArmIO) {
       io.setArmPosition(setpoint.position, feedforward)
     }
 
-    Logger.getInstance()
-      .recordOutput("Arm/profileIsOutOfBounds", isOutOfBounds(setpoint.velocity))
+    Logger.getInstance().recordOutput("Arm/profileIsOutOfBounds", isOutOfBounds(setpoint.velocity))
     Logger.getInstance().recordOutput("Arm/armFeedForward", feedforward.inVolts)
     Logger.getInstance().recordOutput("Arm/armTargetPosition", setpoint.position.inDegrees)
-    Logger.getInstance()
-      .recordOutput("Arm/armTargetVelocity", setpoint.velocity.inDegreesPerSecond)
+    Logger.getInstance().recordOutput("Arm/armTargetVelocity", setpoint.velocity.inDegreesPerSecond)
+    Logger.getInstance().recordOutput("Arm/isAtTargetedPosition", isAtTargetedPosition)
   }
+
+  private fun generateArmProfile(): TrapezoidProfile<Radian> {}
+
+  private fun executeArmProfile(armProfile: TrapezoidProfile<Radian>) {}
 
   private fun isOutOfBounds(velocity: AngularVelocity): Boolean {
     return (velocity > 0.0.degrees.perSecond && forwardLimitReached) ||
@@ -191,12 +190,14 @@ class Arm(private val io: ArmIO) {
 
   fun setArmAngle(angle: Angle): Request {
     return object : Request() {
+      var armProfile: TrapezoidProfile<Radian> = generateArmProfile()
+
       override fun act() {
-        generateArmProfile()
+        executeArmProfile(armProfile)
       }
 
       override fun isFinished(): Boolean {
-        return false
+        return isAtTargetedPosition
       }
     }
   }

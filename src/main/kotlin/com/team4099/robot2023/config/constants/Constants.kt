@@ -1,7 +1,6 @@
 package com.team4099.robot2023.config.constants
 
 import org.team4099.lib.units.base.seconds
-import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.milli
 
 typealias GamePiece = Constants.Universal.GamePiece
