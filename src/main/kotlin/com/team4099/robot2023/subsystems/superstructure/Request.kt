@@ -7,7 +7,7 @@ import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.perSecond
 
-sealed interface Request {
+sealed class Request {
   sealed interface ArmRequest {
     class TargetingPosition(val position: Angle) : ArmRequest
     class OpenLoop(val voltage: ElectricalPotential) : ArmRequest
@@ -21,5 +21,11 @@ sealed interface Request {
     ) : ElevatorRequest
     class OpenLoop(val voltage: ElectricalPotential) : ElevatorRequest
     class Home : ElevatorRequest
+  }
+
+  sealed interface ManipulatorRequest{
+    class OpenLoop(val rollerVoltage: ElectricalPotential, val wristVoltage: ElectricalPotential) : ManipulatorRequest
+    class TargetingPosition(val rollerVoltage: ElectricalPotential, val wristPosition: Angle) : ManipulatorRequest
+    class HomingWrist() : ManipulatorRequest
   }
 }

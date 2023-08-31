@@ -2,6 +2,7 @@ package com.team4099.robot2023.subsystems.arm
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.lib.requests.Request
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import edu.wpi.first.wpilibj.RobotBase
@@ -10,6 +11,7 @@ import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.AngularVelocity
+import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle
@@ -31,8 +33,6 @@ import org.team4099.lib.units.perSecond
 class Arm(private val io: ArmIO) {
   val inputs = ArmIO.ArmIOInputs()
 
-  lateinit var armFeedforward: ArmFeedforward
-
   private val kP =
     LoggedTunableValue("Arm/kP", Pair({ it.inVoltsPerDegree }, { it.volts.perDegree }))
   private val kI =
@@ -44,39 +44,6 @@ class Arm(private val io: ArmIO) {
       "Arm/kD",
       Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
     )
-
-  var armPositionTarget: Angle = 0.0.degrees
-
-  var armVoltageTarget: ElectricalPotential = 0.0.volts
-
-  var isZeroed = false
-
-  private var lastArmPositionTarget = 0.0.degrees
-
-  private var lastArmVoltage = 0.0.volts
-
-  val forwardLimitReached: Boolean
-    get() = inputs.armPosition > ArmConstants.MAX_ROTATION
-  val reverseLimitReached: Boolean
-    get() = inputs.armPosition < ArmConstants.MIN_ROTATION
-
-  var lastIntakeRunTime = Clock.fpgaTime
-
-  var currentState: ArmState = ArmState.UNINITIALIZED
-
-  var currentRequest: ArmRequest = ArmRequest.ZeroArm()
-    set(value) {
-      when (value) {
-        is ArmRequest.OpenLoop -> {
-          armVoltageTarget = value.voltage
-        }
-        is ArmRequest.TargetingPosition -> {
-          armPositionTarget = value.position
-        }
-        else -> {}
-      }
-      field = value
-    }
 
   private var timeProfileGeneratedAt = Clock.fpgaTime
 
@@ -142,6 +109,9 @@ class Arm(private val io: ArmIO) {
     }
   }
 
+  fun generateAndExecuteArmProfile(targetPosition: Length){
+  }
+
   fun periodic() {
     io.updateInputs(inputs)
 
@@ -149,129 +119,6 @@ class Arm(private val io: ArmIO) {
     if (kP.hasChanged() || kI.hasChanged() || kD.hasChanged()) {
       io.configPID(kP.get(), kI.get(), kD.get())
     }
-
-    // Log relevant values
-    Logger.getInstance().processInputs("Arm", inputs)
-
-    Logger.getInstance().recordOutput("Arm/currentState", currentState.name)
-
-    Logger.getInstance()
-      .recordOutput("Arm/requestedState", currentRequest.javaClass.simpleName)
-
-    Logger.getInstance().recordOutput("Arm/isAtTargetedPosition", isAtTargetedPosition)
-
-    Logger.getInstance().recordOutput("Elevator/canContinueSafely", canContinueSafely)
-
-    Logger.getInstance().recordOutput("Arm/isZeroed", isZeroed)
-
-    if (Constants.Tuning.DEBUGING_MODE) {
-      Logger.getInstance()
-        .recordOutput(
-          "Arm/isAtCommandedState", currentState.equivalentToRequest(currentRequest)
-        )
-
-      Logger.getInstance()
-        .recordOutput("Arm/timeProfileGeneratedAt", timeProfileGeneratedAt.inSeconds)
-
-      Logger.getInstance()
-        .recordOutput("Arm/armPositionTarget", armPositionTarget.inDegrees)
-
-      Logger.getInstance().recordOutput("Arm/armVoltageTarget", armVoltageTarget.inVolts)
-      Logger.getInstance()
-        .recordOutput("Arm/lastCommandedAngle", lastArmPositionTarget.inDegrees)
-
-      Logger.getInstance().recordOutput("Arm/forwardLimitReached", forwardLimitReached)
-
-      Logger.getInstance().recordOutput("Arm/reverseLimitReached", reverseLimitReached)
-    }
-
-    // State machine implementation for the arm
-    var nextState = currentState
-    when (currentState) {
-      ArmState.UNINITIALIZED -> {
-        // Because we're at the start of the loop cycle, we want to command it to zero the arm.
-
-        // Transitions
-        nextState = ArmState.ZEROING_ARM
-      }
-      ArmState.ZEROING_ARM -> {
-        zeroArm()
-
-        // Make sure the encoder is zeroed to the through bore encoder
-        if (inputs.isSimulated ||
-          (inputs.armPosition - inputs.armAbsoluteEncoderPosition).absoluteValue <= 1.degrees
-        ) {
-          isZeroed = true
-          lastArmPositionTarget = (-1337).degrees
-        }
-
-        // Transitions
-        nextState = fromRequestToState(currentRequest)
-      }
-      ArmState.OPEN_LOOP_REQUEST -> {
-        // If the voltages are different between the last requests, the time should be reset.
-        if (armVoltageTarget != lastArmVoltage) {
-          lastIntakeRunTime = Clock.fpgaTime
-        }
-
-        setArmVoltage(armVoltageTarget)
-
-        // Transitions
-        nextState = fromRequestToState(currentRequest)
-
-        // In order to make the profile regenerate if the next request isn't to target
-        // the current position, we should set the angle to something unreasonable
-        // so the trapezoidal profile regenerates.
-        if (!currentState.equivalentToRequest(currentRequest)) {
-          lastArmPositionTarget = (-1337).degrees
-        }
-      }
-      ArmState.TARGETING_POSITION -> {
-        if (armPositionTarget != lastArmPositionTarget) {
-          armProfile =
-            TrapezoidProfile(
-              armConstraints,
-              TrapezoidProfile.State(armPositionTarget, 0.0.degrees.perSecond),
-              TrapezoidProfile.State(inputs.armPosition, 0.0.degrees.perSecond)
-            )
-
-          timeProfileGeneratedAt = Clock.fpgaTime
-
-          lastArmPositionTarget = armPositionTarget
-          lastIntakeRunTime = Clock.fpgaTime
-        }
-
-        val timeElapsed = Clock.fpgaTime - timeProfileGeneratedAt
-
-        val profileOutput = armProfile.calculate(timeElapsed)
-
-        setArmPosition(profileOutput)
-
-        Logger.getInstance()
-          .recordOutput("Arm/completedMotionProfile", armProfile.isFinished(timeElapsed))
-
-        Logger.getInstance()
-          .recordOutput("Arm/profilePositionDegrees", profileOutput.position.inDegrees)
-
-        Logger.getInstance()
-          .recordOutput(
-            "Arm/profileVelocityDegreesPersecond",
-              profileOutput.velocity.inDegreesPerSecond
-            )
-
-        nextState = fromRequestToState(currentRequest)
-
-        // In order to make the profile regenerate if the next request isn't to target
-        // the current position, we should set the angle to something unreasonable
-        // so the trapezoidal profile regenerates.
-        if (!currentState.equivalentToRequest(currentRequest)) {
-          lastArmPositionTarget = (-1337).degrees
-        }
-      }
-    }
-
-    // Complete the transition between the current state and the future state.
-    currentState = nextState
   }
 
   /**
@@ -340,6 +187,18 @@ class Arm(private val io: ArmIO) {
   private fun isOutOfBounds(velocity: AngularVelocity): Boolean {
     return (velocity > 0.0.degrees.perSecond && forwardLimitReached) ||
       (velocity < 0.0.degrees.perSecond && reverseLimitReached)
+  }
+
+  fun setArmAngle(angle: Angle): Request {
+    return object : Request() {
+      override fun act() {
+        generateArmProfile()
+      }
+
+      override fun isFinished(): Boolean {
+        return false
+      }
+    }
   }
 
   companion object {
