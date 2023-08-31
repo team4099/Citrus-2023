@@ -1,10 +1,14 @@
 package com.team4099.robot2023
 
 import com.team4099.robot2023.auto.AutonomousSelector
+import com.team4099.robot2023.commands.Manipulator.ManipulatorTestCommand
 import com.team4099.robot2023.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2023.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2023.config.ControlBoard
 import com.team4099.robot2023.config.constants.Constants
+import com.team4099.robot2023.subsystems.Manipulator.Manipulator
+import com.team4099.robot2023.subsystems.Manipulator.ManipulatorIONeo
+import com.team4099.robot2023.subsystems.Manipulator.ManipulatorIOSim
 import com.team4099.robot2023.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2023.subsystems.drivetrain.drive.DrivetrainIOReal
 import com.team4099.robot2023.subsystems.drivetrain.drive.DrivetrainIOSim
@@ -17,14 +21,17 @@ import org.team4099.lib.units.derived.Angle
 
 object RobotContainer {
   private val drivetrain: Drivetrain
+  private val manipulator: Manipulator
 
   init {
     if (RobotBase.isReal()) {
       // Real Hardware Implementations
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
+      manipulator = Manipulator(ManipulatorIONeo)
     } else {
       // Simulation implementations
       drivetrain = Drivetrain(object : GyroIO {}, DrivetrainIOSim)
+      manipulator = Manipulator(ManipulatorIOSim)
     }
   }
 
@@ -50,6 +57,7 @@ object RobotContainer {
 
   fun zeroSensors() {
     drivetrain.zeroSensors()
+    manipulator.zeroWrist()
   }
 
   fun zeroAngle(toAngle: Angle) {
@@ -76,6 +84,7 @@ object RobotContainer {
     //    ControlBoard.autoLevel.whileActiveContinuous(
     //      GoToAngle(drivetrain).andThen(AutoLevel(drivetrain))
     //    )
+    ControlBoard.manipulatorTest.whileTrue(ManipulatorTestCommand(manipulator))
   }
 
   fun mapTestControls() {}
