@@ -122,5 +122,7 @@ object ArmIOSim : ArmIO {
   }
 
   /** recalculates the current position of the neo encoder using value from the absolute encoder */
-  override fun zeroEncoder() {}
+  override fun zeroEncoder(): Boolean {
+    return true
+  }
 }

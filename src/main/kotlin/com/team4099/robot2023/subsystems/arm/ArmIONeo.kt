@@ -2,6 +2,7 @@ package com.team4099.robot2023.subsystems.arm
 
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
+import com.revrobotics.REVLibError
 import com.revrobotics.SparkMaxPIDController
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
@@ -136,8 +137,9 @@ object ArmIONeo : ArmIO {
   Zeroes the encoder of the leader spark max (the arm encoder) to make sure it's in line
   with the through bore encoder.
    */
-  override fun zeroEncoder() {
-    armEncoder.position = leaderSensor.positionToRawUnits(armAbsolutePosition)
+  override fun zeroEncoder() : Boolean {
+    val encoderError = armEncoder.setPosition(leaderSensor.positionToRawUnits(armAbsolutePosition))
+    return encoderError == REVLibError.kOk
   }
 
   /**

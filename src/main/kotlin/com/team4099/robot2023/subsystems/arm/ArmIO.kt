@@ -133,7 +133,7 @@ interface ArmIO {
   ) {}
 
   /** Sets the current encoder position to be the zero value */
-  fun zeroEncoder() {}
+  fun zeroEncoder() : Boolean
 
   /**
    * Sets the arm motor brake mode

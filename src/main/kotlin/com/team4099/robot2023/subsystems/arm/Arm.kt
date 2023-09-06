@@ -5,12 +5,15 @@ import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.requests.Request
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
+import com.team4099.robot2023.config.constants.ManipulatorConstants
 import edu.wpi.first.wpilibj.RobotBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.Length
+import org.team4099.lib.units.base.Second
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
@@ -51,6 +54,7 @@ class Arm(private val io: ArmIO) {
   private var armConstraints =
     TrapezoidProfile.Constraints(ArmConstants.MAX_VELOCITY, ArmConstants.MAX_ACCELERATION)
 
+  private var armPositionTarget = 0.degrees
   private var armProfile =
     TrapezoidProfile(
       armConstraints,
@@ -60,18 +64,25 @@ class Arm(private val io: ArmIO) {
 
   private var armFeedforward: ArmFeedforward
 
+  private var currentArmRequest = ArmRequests.UNINITIALIZED
+
   val isAtTargetedPosition: Boolean
     get() =
       (
-        currentState == ArmState.TARGETING_POSITION &&
+        currentArmRequest == ArmRequests.TARGETING_POSITION &&
           armProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt) &&
           (inputs.armPosition - armPositionTarget).absoluteValue <= ArmConstants.TOLERANCE
         )
 
+  val forwardLimitReached: Boolean
+    get() = inputs.armPosition >= ArmConstants.MAX_ROTATION
+  val reverseLimitReached: Boolean
+    get() = inputs.armPosition <= ArmConstants.MIN_ROTATION
+
   // Used to make sure that elevator attached to the arm can continue safely
   val canContinueSafely: Boolean
     get() =
-      currentRequest is ArmRequest.TargetingPosition &&
+      currentArmRequest == ArmRequests.TARGETING_POSITION &&
         (
           ((Clock.fpgaTime - timeProfileGeneratedAt) - armProfile.totalTime() < 1.0.seconds) ||
             armProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt)
@@ -131,12 +142,6 @@ class Arm(private val io: ArmIO) {
     io.zeroEncoder()
   }
 
-  fun regenerateProfileNextLoopCycle() {
-    lastArmVoltage = -3337.volts
-    lastArmPositionTarget = -3337.degrees
-    lastIntakeRunTime = -3337.seconds
-  }
-
   fun setArmVoltage(voltage: ElectricalPotential) {
     //    if ((openLoopForwardLimitReached && voltage > 0.0.volts) ||
     //      (openLoopReverseLimitReached && voltage < 0.0.volts)
@@ -179,20 +184,84 @@ class Arm(private val io: ArmIO) {
     Logger.getInstance().recordOutput("Arm/isAtTargetedPosition", isAtTargetedPosition)
   }
 
-  private fun generateArmProfile(): TrapezoidProfile<Radian> {}
+  private fun generateArmProfile(): TrapezoidProfile<Radian> {
+    val preProfileGenerate = Clock.realTimestamp
+    armProfile =
+      TrapezoidProfile(
+        armConstraints,
+        TrapezoidProfile.State(armPositionTarget, 0.0.degrees.perSecond),
+        TrapezoidProfile.State(inputs.armPosition, 0.0.degrees.perSecond)
+      )
+    val postProfileGenerate = Clock.realTimestamp
 
-  private fun executeArmProfile(armProfile: TrapezoidProfile<Radian>) {}
+    timeProfileGeneratedAt = Clock.fpgaTime
+
+    Logger.getInstance().recordOutput("Arm/ProfileGenerationTime", (postProfileGenerate - preProfileGenerate).inSeconds)
+    return armProfile
+  }
+
+  private fun executeArmProfile(armProfile: TrapezoidProfile<Radian>) {
+    val timeElapsed = Clock.fpgaTime - timeProfileGeneratedAt
+    val profileOutput = armProfile.calculate(timeElapsed)
+    setArmPosition(profileOutput)
+
+    Logger.getInstance()
+      .recordOutput(
+        "Arm/completedMotionProfile", armProfile.isFinished(timeElapsed)
+      )
+
+    Logger.getInstance()
+      .recordOutput("Arm/profilePositionDegrees", profileOutput.position.inDegrees)
+    Logger.getInstance()
+      .recordOutput(
+        "Arm/profileVelocityDegreesPerSecond",
+        profileOutput.velocity.inDegreesPerSecond
+      )
+  }
 
   private fun isOutOfBounds(velocity: AngularVelocity): Boolean {
     return (velocity > 0.0.degrees.perSecond && forwardLimitReached) ||
       (velocity < 0.0.degrees.perSecond && reverseLimitReached)
   }
 
-  fun setArmAngle(angle: Angle): Request {
+  fun armZeroRequest(): Request {
+    return object : Request() {
+      var hasZeroed = false
+
+      override fun act() {
+        updateCurrentRequest(ArmRequests.ZEROING_ARM)
+        hasZeroed = io.zeroEncoder()
+      }
+
+      override fun isFinished(): Boolean {
+        return hasZeroed
+      }
+    }
+  }
+
+  fun armOpenLoopRequest(armVoltage: ElectricalPotential): Request {
+    return object : Request() {
+      override fun act() {
+        updateCurrentRequest(ArmRequests.OPEN_LOOP_REQUEST)
+        setArmVoltage(armVoltage)
+      }
+
+      override fun isFinished(): Boolean {
+        return false
+      }
+    }
+  }
+
+  fun armClosedLoopRequest(angle: Angle): Request {
     return object : Request() {
       var armProfile: TrapezoidProfile<Radian> = generateArmProfile()
 
+      init {
+        armPositionTarget = angle
+      }
+
       override fun act() {
+        updateCurrentRequest(ArmRequests.TARGETING_POSITION)
         executeArmProfile(armProfile)
       }
 
@@ -202,27 +271,18 @@ class Arm(private val io: ArmIO) {
     }
   }
 
+  fun updateCurrentRequest(other: ArmRequests) {
+    if (currentArmRequest != other) {
+      currentArmRequest = other
+    }
+  }
+
   companion object {
-    enum class ArmState {
+    enum class ArmRequests {
       UNINITIALIZED,
       ZEROING_ARM,
       TARGETING_POSITION,
       OPEN_LOOP_REQUEST;
-
-      inline fun equivalentToRequest(request: ArmRequest): Boolean {
-        return (
-          (request is ArmRequest.OpenLoop && this == OPEN_LOOP_REQUEST) ||
-            (request is ArmRequest.TargetingPosition && this == TARGETING_POSITION) ||
-            (request is ArmRequest.ZeroArm && this == ZEROING_ARM)
-          )
-      }
-    }
-    inline fun fromRequestToState(request: ArmRequest): ArmState {
-      return when (request) {
-        is ArmRequest.OpenLoop -> ArmState.OPEN_LOOP_REQUEST
-        is ArmRequest.TargetingPosition -> ArmState.TARGETING_POSITION
-        is ArmRequest.ZeroArm -> ArmState.ZEROING_ARM
-      }
     }
   }
 }
