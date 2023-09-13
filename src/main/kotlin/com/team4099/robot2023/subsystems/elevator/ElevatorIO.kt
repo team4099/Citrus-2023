@@ -1,5 +1,6 @@
 package com.team4099.robot2023.subsystems.elevator
 
+import com.team4099.robot2023.subsystems.arm.ArmIO
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.base.Length
@@ -15,13 +16,15 @@ import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.IntegralGain
 import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Volt
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.perSecond
 
 interface ElevatorIO {
-  class ElevatorInputs : LoggableInputs {
+  class ElevatorInputs(val armInputs: ArmIO.ArmIOInputs) : LoggableInputs {
+    var elevatorAngle = 0.degrees
 
     var elevatorPosition = 0.0.inches
     var elevatorVelocity = 0.0.inches.perSecond

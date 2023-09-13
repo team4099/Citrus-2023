@@ -1,5 +1,6 @@
 package com.team4099.robot2023.subsystems.Manipulator
 
+import com.team4099.robot2023.subsystems.arm.ArmIO
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.base.amps
@@ -24,7 +25,7 @@ import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
 interface ManipulatorIO {
-  class ManipulatorIOInputs : LoggableInputs {
+  class ManipulatorIOInputs(val armInputs: ArmIO.ArmIOInputs) : LoggableInputs {
     val statorCurrent = 0.amps
     var isSimulating = false
     var wristPosition: Angle = 0.0.degrees

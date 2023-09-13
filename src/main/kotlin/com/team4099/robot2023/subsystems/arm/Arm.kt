@@ -30,7 +30,6 @@ import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
-import com.team4099.robot2023.subsystems.superstructure.RobotRequest.ArmRobotRequest as ArmRequest
 
 class Arm(private val io: ArmIO) {
   val inputs = ArmIO.ArmIOInputs()
@@ -55,6 +54,8 @@ class Arm(private val io: ArmIO) {
     TrapezoidProfile.Constraints(ArmConstants.MAX_VELOCITY, ArmConstants.MAX_ACCELERATION)
 
   private var armPositionTarget = 0.degrees
+  private var armVelocityTarget = 0.degrees.perSecond
+
   private var armProfile =
     TrapezoidProfile(
       armConstraints,
@@ -117,7 +118,6 @@ class Arm(private val io: ArmIO) {
     }
   }
 
-  fun generateAndExecuteArmProfile(targetPosition: Length) {}
 
   fun periodic() {
     io.updateInputs(inputs)
@@ -126,6 +126,10 @@ class Arm(private val io: ArmIO) {
     if (kP.hasChanged() || kI.hasChanged() || kD.hasChanged()) {
       io.configPID(kP.get(), kI.get(), kD.get())
     }
+
+    Logger.getInstance().processInputs("Elevator", inputs)
+    Logger.getInstance()
+      .recordOutput("Elevator/currentRequest", currentArmRequest.name)
   }
 
   /**
@@ -242,7 +246,7 @@ class Arm(private val io: ArmIO) {
   fun armOpenLoopRequest(armVoltage: ElectricalPotential): Request {
     return object : Request() {
       override fun act() {
-        updateCurrentRequest(ArmRequests.OPEN_LOOP_REQUEST)
+        updateCurrentRequest(ArmRequests.OPEN_LOOP)
         setArmVoltage(armVoltage)
       }
 
@@ -282,7 +286,7 @@ class Arm(private val io: ArmIO) {
       UNINITIALIZED,
       ZEROING_ARM,
       TARGETING_POSITION,
-      OPEN_LOOP_REQUEST;
+      OPEN_LOOP;
     }
   }
 }

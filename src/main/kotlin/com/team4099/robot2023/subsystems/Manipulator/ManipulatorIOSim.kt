@@ -2,8 +2,10 @@ package com.team4099.robot2023.subsystems.Manipulator
 
 import com.team4099.lib.math.clamp
 import com.team4099.lib.sim.vision.MathUtils.clamp
+import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants.Universal
 import com.team4099.robot2023.config.constants.ManipulatorConstants
+import com.team4099.robot2023.util.CustomSimulation.WristSim
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
@@ -20,6 +22,7 @@ import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.asDrivingOverDriven
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inKilogramsMeterSquared
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inVolts
@@ -39,16 +42,17 @@ object ManipulatorIOSim : ManipulatorIO {
       ManipulatorConstants.ROLLER_MOMENT_OF_INERTIA.inKilogramsMeterSquared
     )
   private val wristSim =
-    SingleJointedArmSim(
+    WristSim(
       DCMotor.getNEO(
         1,
       ),
       ManipulatorConstants.WRIST_GEAR_RATIO.asDrivingOverDriven,
-      ManipulatorConstants.WRIST_MOMENT_OF_INERTIA.inKilogramsMeterSquared,
-      ManipulatorConstants.WRIST_LENGTH.inMeters,
-      ManipulatorConstants.WRIST_MIN_ROTATION.inRadians,
-      ManipulatorConstants.WRIST_MAX_ROTATION.inRadians,
-      false
+      ManipulatorConstants.WRIST_MOMENT_OF_INERTIA,
+      ManipulatorConstants.WRIST_LENGTH,
+      ManipulatorConstants.WRIST_MIN_ROTATION,
+      ManipulatorConstants.WRIST_MAX_ROTATION,
+      false,
+      ArmConstants.MIN_ROTATION
     )
 
   private var rollerVoltage = 0.volts
@@ -63,6 +67,8 @@ object ManipulatorIOSim : ManipulatorIO {
 
   override fun updateInputs(inputs: ManipulatorIO.ManipulatorIOInputs) {
     rollerSim.update(Universal.LOOP_PERIOD_TIME.inSeconds)
+
+    wristSim.updateElevatorAngle(inputs.armInputs.armPosition)
     wristSim.update(Universal.LOOP_PERIOD_TIME.inSeconds)
 
     inputs.rollerVelocity = rollerSim.angularVelocityRPM.rotations.perMinute
