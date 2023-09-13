@@ -16,7 +16,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 
-object ManipulatorConstants {
+object WristConstants {
   object PID {
     val NEO_KP = 0.0.volts / 1.degrees
     val NEO_KI = 0.0.volts / (1.degrees * 1.seconds)
@@ -76,5 +76,5 @@ object ManipulatorConstants {
   val CONE_IN = -12.volts
   val CUBE_IDLE = 3.volts
   val CONE_IDLE = -3.volts
-  val MANIPULATOR_WAIT_BEFORE_DETECT_CURRENT_SPIKE = 0.seconds
+  val WRIST_WAIT_BEFORE_DETECT_CURRENT_SPIKE = 0.seconds
 }

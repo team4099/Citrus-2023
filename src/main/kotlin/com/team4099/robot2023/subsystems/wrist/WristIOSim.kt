@@ -1,9 +1,8 @@
-package com.team4099.robot2023.subsystems.Manipulator
+package com.team4099.robot2023.subsystems.wrist
 
 import com.team4099.lib.math.clamp
-import com.team4099.lib.sim.vision.MathUtils.clamp
 import com.team4099.robot2023.config.constants.Constants.Universal
-import com.team4099.robot2023.config.constants.ManipulatorConstants
+import com.team4099.robot2023.config.constants.WristConstants
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
@@ -29,25 +28,25 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
-object ManipulatorIOSim : ManipulatorIO {
+object WristIOSim : WristIO {
   private val rollerSim =
     FlywheelSim(
       DCMotor.getNEO(
         1,
       ),
-      ManipulatorConstants.ROLLER_GEAR_RATIO.asDrivingOverDriven,
-      ManipulatorConstants.ROLLER_MOMENT_OF_INERTIA.inKilogramsMeterSquared
+      WristConstants.ROLLER_GEAR_RATIO.asDrivingOverDriven,
+      WristConstants.ROLLER_MOMENT_OF_INERTIA.inKilogramsMeterSquared
     )
   private val wristSim =
     SingleJointedArmSim(
       DCMotor.getNEO(
         1,
       ),
-      ManipulatorConstants.WRIST_GEAR_RATIO.asDrivingOverDriven,
-      ManipulatorConstants.WRIST_MOMENT_OF_INERTIA.inKilogramsMeterSquared,
-      ManipulatorConstants.WRIST_LENGTH.inMeters,
-      ManipulatorConstants.WRIST_MIN_ROTATION.inRadians,
-      ManipulatorConstants.WRIST_MAX_ROTATION.inRadians,
+      WristConstants.WRIST_GEAR_RATIO.asDrivingOverDriven,
+      WristConstants.WRIST_MOMENT_OF_INERTIA.inKilogramsMeterSquared,
+      WristConstants.WRIST_LENGTH.inMeters,
+      WristConstants.MIN_ROTATION.inRadians,
+      WristConstants.MAX_ROTATION.inRadians,
       false
     )
 
@@ -56,12 +55,12 @@ object ManipulatorIOSim : ManipulatorIO {
 
   private val wristController =
     PIDController(
-      ManipulatorConstants.PID.SIM_KP,
-      ManipulatorConstants.PID.SIM_KI,
-      ManipulatorConstants.PID.SIM_KD,
+      WristConstants.PID.SIM_KP,
+      WristConstants.PID.SIM_KI,
+      WristConstants.PID.SIM_KD,
     )
 
-  override fun updateInputs(inputs: ManipulatorIO.ManipulatorIOInputs) {
+  override fun updateInputs(inputs: WristIO.ManipulatorIOInputs) {
     rollerSim.update(Universal.LOOP_PERIOD_TIME.inSeconds)
     wristSim.update(Universal.LOOP_PERIOD_TIME.inSeconds)
 
@@ -85,8 +84,8 @@ object ManipulatorIOSim : ManipulatorIO {
     val clampedVoltage =
       clamp(
         voltage,
-        -ManipulatorConstants.WRIST_VOLTAGE_COMPENSATION,
-        ManipulatorConstants.WRIST_VOLTAGE_COMPENSATION
+        -WristConstants.WRIST_VOLTAGE_COMPENSATION,
+        WristConstants.WRIST_VOLTAGE_COMPENSATION
       )
     wristVoltage = clampedVoltage
     wristSim.setInputVoltage(clampedVoltage.inVolts)
@@ -96,8 +95,8 @@ object ManipulatorIOSim : ManipulatorIO {
     val clampedVoltage =
       clamp(
         voltage,
-        -ManipulatorConstants.ROLLER_VOLTAGE_COMPENSATION,
-        ManipulatorConstants.ROLLER_VOLTAGE_COMPENSATION
+        -WristConstants.ROLLER_VOLTAGE_COMPENSATION,
+        WristConstants.ROLLER_VOLTAGE_COMPENSATION
       )
     rollerVoltage = clampedVoltage
     rollerSim.setInputVoltage(clampedVoltage.inVolts)

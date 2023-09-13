@@ -1,11 +1,10 @@
-package com.team4099.robot2023.subsystems.Manipulator
+package com.team4099.robot2023.subsystems.wrist
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.requests.Request
-import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
-import com.team4099.robot2023.config.constants.ManipulatorConstants
+import com.team4099.robot2023.config.constants.WristConstants
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
@@ -13,7 +12,6 @@ import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.Length
-import org.team4099.lib.units.base.Second
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle
@@ -31,23 +29,22 @@ import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
-import com.team4099.robot2023.subsystems.superstructure.RobotRequest.ArmRobotRequest as ArmRequest
 
-class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
+class Wrist(private val io: WristIO) : SubsystemBase() {
 
-  val inputs = ManipulatorIO.ManipulatorIOInputs()
+  val inputs = WristIO.WristIOInputs()
 
   lateinit var wristFeedforward: ArmFeedforward
 
   private val kP =
-    LoggedTunableValue("Manipulator/kP", Pair({ it.inVoltsPerDegree }, { it.volts.perDegree }))
+    LoggedTunableValue("Wrist/kP", Pair({ it.inVoltsPerDegree }, { it.volts.perDegree }))
   private val kI =
     LoggedTunableValue(
-      "Manipulator/kI", Pair({ it.inVoltsPerDegreeSeconds }, { it.volts.perDegreeSeconds })
+      "Wrist/kI", Pair({ it.inVoltsPerDegreeSeconds }, { it.volts.perDegreeSeconds })
     )
   private val kD =
     LoggedTunableValue(
-      "Manipulator/kD", Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
+      "Wrist/kD", Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
     )
 
   private var prevWristSetpoint: TrapezoidProfile.State<Radian> =
@@ -55,50 +52,50 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
 
   private val intakeAngle =
     LoggedTunableValue(
-      "Manipulator/intakeAngle",
-      ManipulatorConstants.INTAKE_ANGLE,
+      "Wrist/intakeAngle",
+      WristConstants.INTAKE_ANGLE,
       Pair({ it.inDegrees }, { it.degrees })
     )
 
   private val outtakeAngle =
     LoggedTunableValue(
-      "Manipulator/outtakeAngle",
-      ManipulatorConstants.OUTTAKE_ANGLE,
+      "Wrist/outtakeAngle",
+      WristConstants.OUTTAKE_ANGLE,
       Pair({ it.inDegrees }, { it.degrees })
     )
 
   private val stowedUpAngle =
     LoggedTunableValue(
-      "Manipulator/stowedUpAngle",
-      ManipulatorConstants.STOWED_UP_ANGLE,
+      "Wrist/stowedUpAngle",
+      WristConstants.STOWED_UP_ANGLE,
       Pair({ it.inDegrees }, { it.degrees })
     )
 
   private val stowedDownAngle =
     LoggedTunableValue(
-      "Manipulator/stowedDownAngle",
-      ManipulatorConstants.STOWED_DOWN_ANGLE,
+      "Wrist/stowedDownAngle",
+      WristConstants.STOWED_DOWN_ANGLE,
       Pair({ it.inDegrees }, { it.degrees })
     )
 
   private val intakeVoltage =
     LoggedTunableValue(
-      "Manipulator/intakeVoltage",
-      ManipulatorConstants.INTAKE_VOLTAGE,
+      "Wrist/intakeVoltage",
+      WristConstants.INTAKE_VOLTAGE,
       Pair({ it.inVolts }, { it.volts })
     )
 
   private val outtakeVoltage =
     LoggedTunableValue(
-      "Manipulator/outtakeVoltage",
-      ManipulatorConstants.OUTTAKE_VOLTAGE,
+      "Wrist/outtakeVoltage",
+      WristConstants.OUTTAKE_VOLTAGE,
       Pair({ it.inVolts }, { it.volts })
     )
 
   private val neutralVoltage =
     LoggedTunableValue(
-      "Manipulator/neutralVoltage",
-      ManipulatorConstants.NEUTRAL_VOLTAGE,
+      "Wrist/neutralVoltage",
+      WristConstants.NEUTRAL_VOLTAGE,
       Pair({ it.inVolts }, { it.volts })
     )
 
@@ -123,13 +120,13 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
       (
         currentWristRequest == WristRequests.TARGETING_POSITION &&
           wristProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt) &&
-          (inputs.wristPosition - wristPositionTarget).absoluteValue <= ManipulatorConstants.TOLERANCE
+          (inputs.wristPosition - wristPositionTarget).absoluteValue <= WristConstants.TOLERANCE
         )
 
   val forwardLimitReached: Boolean
-    get() = inputs.wristPosition >= ManipulatorConstants.MAX_ROTATION
+    get() = inputs.wristPosition >= WristConstants.MAX_ROTATION
   val reverseLimitReached: Boolean
-    get() = inputs.wristPosition <= ManipulatorConstants.MIN_ROTATION
+    get() = inputs.wristPosition <= WristConstants.MIN_ROTATION
 
   val canContinueSafely: Boolean
     get() =
@@ -141,16 +138,16 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
         (inputs.wristPosition - wristPositionTarget).absoluteValue <= 2.5.degrees
 
   val openLoopForwardLimitReached: Boolean
-    get() = inputs.wristPosition >= ManipulatorConstants.ARM_OPEN_LOOP_MAX_ROTATION
+    get() = inputs.wristPosition >= WristConstants.ARM_OPEN_LOOP_MAX_ROTATION
 
   val openLoopReverseLimitReached: Boolean
-    get() = inputs.wristPosition <= ManipulatorConstants.ARM_OPEN_LOOP_MIN_ROTATION
+    get() = inputs.wristPosition <= WristConstants.ARM_OPEN_LOOP_MIN_ROTATION
 
   var lastIntakeRunTime = Clock.fpgaTime
 
   private var wristConstraints: TrapezoidProfile.Constraints<Radian> =
     TrapezoidProfile.Constraints(
-      ManipulatorConstants.MAX_ARM_VELOCITY, ManipulatorConstants.MAX_ARM_ACCELERATION
+      WristConstants.MAX_ARM_VELOCITY, WristConstants.MAX_ARM_ACCELERATION
     )
 
   private var wristProfile =
@@ -165,55 +162,55 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   var lastRollerRunTime = Clock.fpgaTime
   val hasCube: Boolean
     get() {
-      return inputs.rollerStatorCurrent >= ManipulatorConstants.CUBE_CURRENT_THRESHOLD &&
+      return inputs.rollerStatorCurrent >= WristConstants.CUBE_CURRENT_THRESHOLD &&
         (
-          inputs.rollerAppliedVoltage == ManipulatorConstants.CUBE_IN ||
+          inputs.rollerAppliedVoltage == WristConstants.CUBE_IN ||
             inputs.rollerAppliedVoltage ==
-            ManipulatorConstants
+            WristConstants
               .CUBE_IDLE // TODO checking if their equal is gonna be wrong figure out a
           // better way
           ) &&
         (Clock.fpgaTime - lastRollerRunTime) >=
-        ManipulatorConstants.MANIPULATOR_WAIT_BEFORE_DETECT_CURRENT_SPIKE
+        WristConstants.WRIST_WAIT_BEFORE_DETECT_CURRENT_SPIKE
     }
   val hasCone: Boolean
     get() {
-      return inputs.rollerStatorCurrent >= ManipulatorConstants.CONE_CURRENT_THRESHOLD &&
+      return inputs.rollerStatorCurrent >= WristConstants.CONE_CURRENT_THRESHOLD &&
         (
-          inputs.rollerAppliedVoltage == ManipulatorConstants.CONE_IN ||
+          inputs.rollerAppliedVoltage == WristConstants.CONE_IN ||
             inputs.rollerAppliedVoltage ==
-            ManipulatorConstants
+            WristConstants
               .CONE_IDLE // TODO checking if their equal is gonna be wrong figure out a
           // better way
           ) &&
         (Clock.fpgaTime - lastRollerRunTime) >=
-        ManipulatorConstants.MANIPULATOR_WAIT_BEFORE_DETECT_CURRENT_SPIKE
+        WristConstants.WRIST_WAIT_BEFORE_DETECT_CURRENT_SPIKE
     }
 
   init {
     if (RobotBase.isReal()) {
-      kP.initDefault(ManipulatorConstants.PID.NEO_KP)
-      kI.initDefault(ManipulatorConstants.PID.NEO_KI)
-      kD.initDefault(ManipulatorConstants.PID.NEO_KD)
+      kP.initDefault(WristConstants.PID.NEO_KP)
+      kI.initDefault(WristConstants.PID.NEO_KI)
+      kD.initDefault(WristConstants.PID.NEO_KD)
 
       var wristFeedforward =
         ArmFeedforward(
-          ManipulatorConstants.PID.ARM_KS,
-          ManipulatorConstants.PID.ARM_KG,
-          ManipulatorConstants.PID.ARM_KV,
-          ManipulatorConstants.PID.ARM_KA
+          WristConstants.PID.ARM_KS,
+          WristConstants.PID.ARM_KG,
+          WristConstants.PID.ARM_KV,
+          WristConstants.PID.ARM_KA
         )
     } else {
-      kP.initDefault(ManipulatorConstants.PID.SIM_KP)
-      kI.initDefault(ManipulatorConstants.PID.SIM_KI)
-      kD.initDefault(ManipulatorConstants.PID.SIM_KD)
+      kP.initDefault(WristConstants.PID.SIM_KP)
+      kI.initDefault(WristConstants.PID.SIM_KI)
+      kD.initDefault(WristConstants.PID.SIM_KD)
 
       wristFeedforward =
         ArmFeedforward(
           0.0.volts,
-          ManipulatorConstants.PID.ARM_KG,
-          ManipulatorConstants.PID.ARM_KV,
-          ManipulatorConstants.PID.ARM_KA
+          WristConstants.PID.ARM_KG,
+          WristConstants.PID.ARM_KV,
+          WristConstants.PID.ARM_KA
         )
     }
   }
@@ -226,8 +223,8 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
     if (kP.hasChanged() || kI.hasChanged() || kD.hasChanged()) {
       io.configPID(kP.get(), kI.get(), kD.get())
     }
-    Logger.getInstance().processInputs("Manipulator", inputs)
-    Logger.getInstance().recordOutput("Manipulator/currentRequest", currentWristRequest.name)
+    Logger.getInstance().processInputs("Wrist", inputs)
+    Logger.getInstance().recordOutput("Wrist/currentRequest", currentWristRequest.name)
 
   }
 
@@ -243,7 +240,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
    */
   fun setWristBrakeMode(brake: Boolean) {
     io.setWristBrakeMode(brake)
-    Logger.getInstance().recordOutput("Manipulator/wristBrakeModeEnabled", brake)
+    Logger.getInstance().recordOutput("Wrist/wristBrakeModeEnabled", brake)
   }
 
   fun zeroWrist() {
@@ -261,7 +258,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   }
 
   fun setHomeVoltage() {
-    io.setWristVoltage(ManipulatorConstants.HOMING_APPLIED_VOLTAGE)
+    io.setWristVoltage(WristConstants.HOMING_APPLIED_VOLTAGE)
   }
 
   /**
@@ -337,15 +334,15 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   }
 
   fun isAtHome() : Boolean {
-    if (inputs.wristStatorCurrent < ManipulatorConstants.HOMING_STALL_CURRENT) {
+    if (inputs.wristStatorCurrent < WristConstants.HOMING_STALL_CURRENT) {
       lastHomingStatorCurrentTripTime = Clock.fpgaTime
     }
     return (inputs.isSimulating ||
       (
         isHomed &&
-          inputs.wristStatorCurrent >= ManipulatorConstants.HOMING_STALL_CURRENT &&
+          inputs.wristStatorCurrent >= WristConstants.HOMING_STALL_CURRENT &&
           (Clock.fpgaTime - lastHomingStatorCurrentTripTime) >=
-          ManipulatorConstants.HOMING_STALL_TIME_THRESHOLD
+          WristConstants.HOMING_STALL_TIME_THRESHOLD
         )
       )
   }
