@@ -32,6 +32,7 @@ object ManipulatorConstants {
     val ARM_KA = 0.0.volts / 1.0.radians.perSecond.perSecond
   }
 
+  val TOLERANCE = 0
   val ARM_VOLTAGE_COMPENSATION = 0.volts
   val WRIST_MIN_ROTATION = -45.degrees
   val WRIST_MAX_ROTATION = 150.degrees
