@@ -7,6 +7,7 @@ import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.ManipulatorConstants
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
@@ -115,24 +116,24 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
 
   var isHomed = false
 
-  private var currentWristRequest = ManipulatorRequest.UNINITIALIZED
+  private var currentWristRequest = WristRequests.UNINITIALIZED
 
   val isAtTargetedPosition: Boolean
     get() =
       (
-        currentWristRequest == ManipulatorRequests.TARGETING_POSITION &&
+        currentWristRequest == WristRequests.TARGETING_POSITION &&
           wristProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt) &&
           (inputs.wristPosition - wristPositionTarget).absoluteValue <= ManipulatorConstants.TOLERANCE
         )
 
   val forwardLimitReached: Boolean
-    get() = inputs.wristPosition >= ArmConstants.MAX_ROTATION
+    get() = inputs.wristPosition >= ManipulatorConstants.MAX_ROTATION
   val reverseLimitReached: Boolean
-    get() = inputs.wristPosition <= ArmConstants.MIN_ROTATION
+    get() = inputs.wristPosition <= ManipulatorConstants.MIN_ROTATION
 
   val canContinueSafely: Boolean
     get() =
-      currentWristRequest == ManipulatorRequests.TARGETING_POSITION &&
+      currentWristRequest == WristRequests.TARGETING_POSITION &&
         (
           ((Clock.fpgaTime - timeProfileGeneratedAt) - wristProfile.totalTime() < 1.0.seconds) ||
             wristProfile.isFinished(Clock.fpgaTime - timeProfileGeneratedAt)
@@ -219,12 +220,15 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
 
   fun generateAndExecuteWristProfile(targetPosition: Length) {}
 
-  fun periodic() {
+  override fun periodic() {
     io.updateInputs(inputs)
     // Update the PID values when tuning
     if (kP.hasChanged() || kI.hasChanged() || kD.hasChanged()) {
       io.configPID(kP.get(), kI.get(), kD.get())
     }
+    Logger.getInstance().processInputs("Manipulator", inputs)
+    Logger.getInstance().recordOutput("Manipulator/currentRequest", currentWristRequest.name)
+
   }
 
   /** @param appliedVoltage Represents the applied voltage of the roller motor */
@@ -247,7 +251,13 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   }
 
   fun setWristVoltage(voltage: ElectricalPotential) {
-    io.setWristVoltage(voltage)
+    if ((openLoopForwardLimitReached && voltage > 0.0.volts) ||
+      (openLoopReverseLimitReached && voltage < 0.0.volts)
+    ) {
+      io.setWristVoltage(0.0.volts)
+    } else {
+      io.setWristVoltage(voltage)
+    }
   }
 
   fun setHomeVoltage() {
@@ -326,17 +336,36 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
       )
   }
 
-  fun wristZeroRequest(): Request {
+  fun isAtHome() : Boolean {
+    if (inputs.wristStatorCurrent < ManipulatorConstants.HOMING_STALL_CURRENT) {
+      lastHomingStatorCurrentTripTime = Clock.fpgaTime
+    }
+    return (inputs.isSimulating ||
+      (
+        isHomed &&
+          inputs.wristStatorCurrent >= ManipulatorConstants.HOMING_STALL_CURRENT &&
+          (Clock.fpgaTime - lastHomingStatorCurrentTripTime) >=
+          ManipulatorConstants.HOMING_STALL_TIME_THRESHOLD
+        )
+      )
+  }
+
+  fun wristHomeRequest(): Request {
     return object : Request() {
-      var hasZeroed = false
+      var hasHomed = false
 
       override fun act() {
-        updateCurrentRequest(ManipulatorRequests.ZEROING_ARM)
-        hasZeroed = io.zeroWrist()
+        updateCurrentRequest(WristRequests.HOME)
+        if (isAtHome()) {
+          hasHomed = true
+          io.zeroEncoder()
+        } else {
+          setHomeVoltage()
+        }
       }
 
-      override fun isFinished(): Boolean {
-        return hasZeroed
+      override fun isFinished() : Boolean {
+        return hasHomed
       }
     }
   }
@@ -344,7 +373,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   fun wristOpenLoopRequest(wristVoltage: ElectricalPotential): Request {
     return object : Request() {
       override fun act() {
-        updateCurrentRequest(ManipulatorRequests.OPEN_LOOP_REQUEST)
+        updateCurrentRequest(WristRequests.OPEN_LOOP_REQUEST)
         setWristVoltage(wristVoltage)
       }
 
@@ -363,7 +392,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
       }
 
       override fun act() {
-        updateCurrentRequest(ManipulatorRequests.TARGETING_POSITION)
+        updateCurrentRequest(WristRequests.TARGETING_POSITION)
         executeWristProfile(wristProfile)
       }
 
@@ -373,7 +402,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
     }
   }
 
-  fun updateCurrentRequest(other: ManipulatorRequests) {
+  fun updateCurrentRequest(other: WristRequests) {
     if (currentWristRequest != other) {
       currentWristRequest = other
     }
@@ -382,7 +411,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   companion object {
     enum class WristRequests {
       UNINITIALIZED,
-      ZEROING_ARM,
+      HOME,
       TARGETING_POSITION,
       OPEN_LOOP_REQUEST;
     }
