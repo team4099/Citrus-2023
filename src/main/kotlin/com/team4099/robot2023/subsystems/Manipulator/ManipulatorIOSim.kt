@@ -68,7 +68,7 @@ object ManipulatorIOSim : ManipulatorIO {
   override fun updateInputs(inputs: ManipulatorIO.ManipulatorIOInputs) {
     rollerSim.update(Universal.LOOP_PERIOD_TIME.inSeconds)
 
-    wristSim.updateElevatorAngle(inputs.armInputs.armPosition)
+    wristSim.elevatorAngle = inputs.elevatorAngle.get()
     wristSim.update(Universal.LOOP_PERIOD_TIME.inSeconds)
 
     inputs.rollerVelocity = rollerSim.angularVelocityRPM.rotations.perMinute

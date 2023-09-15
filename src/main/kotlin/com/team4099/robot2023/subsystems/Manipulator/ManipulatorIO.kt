@@ -23,9 +23,13 @@ import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inRotationsPerMinute
 import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
+import java.util.function.Supplier
 
 interface ManipulatorIO {
-  class ManipulatorIOInputs(val armInputs: ArmIO.ArmIOInputs) : LoggableInputs {
+  class ManipulatorIOInputs : LoggableInputs {
+
+    var elevatorAngle = Supplier<Angle> {0.degrees}
+
     val statorCurrent = 0.amps
     var isSimulating = false
     var wristPosition: Angle = 0.0.degrees

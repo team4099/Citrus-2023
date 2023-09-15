@@ -66,7 +66,7 @@ object ElevatorIOSim : ElevatorIO {
   private var lastAppliedVoltage = 0.0.volts
 
   override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
-    elevatorSim.updateElevatorAngle(inputs.armInputs.armPosition)
+    elevatorSim.elevatorAngle = inputs.elevatorAngle.get()
     elevatorSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
     inputs.elevatorPosition = elevatorSim.positionMeters.meters

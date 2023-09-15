@@ -23,7 +23,7 @@ class PivotElevatorSim(
   private val drumRadiusMeters: Length,
   private val minHeightMeters: Length,
   private val maxHeightMeters: Length,
-  private var angleElevation: Angle,
+  private var initialElevatorAngle: Angle,
   private val simulateGravity: Boolean,
 ) :
   ElevatorSim(
@@ -36,9 +36,10 @@ class PivotElevatorSim(
     simulateGravity
   ) {
 
-  fun updateElevatorAngle(angle: Angle) {
-    angleElevation = angle
-  }
+  var elevatorAngle = initialElevatorAngle
+    set(value) {
+      field = value
+    }
 
   override fun updateX(
     currentXhat: Matrix<N2, N1>?,
@@ -53,7 +54,7 @@ class PivotElevatorSim(
         { x: Matrix<N2, N1>, _u: Matrix<N1, N1> ->
           var xdot = m_plant.a.times(x).plus(m_plant.b.times(_u))
           if (simulateGravity) {
-            xdot = xdot.plus(VecBuilder.fill(0.0, -9.8 * angleElevation.sin))
+            xdot = xdot.plus(VecBuilder.fill(0.0, -9.8 * elevatorAngle.sin))
           }
           xdot
         },

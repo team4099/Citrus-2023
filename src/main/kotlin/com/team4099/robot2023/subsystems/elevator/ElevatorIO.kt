@@ -11,6 +11,7 @@ import org.team4099.lib.units.base.inAmperes
 import org.team4099.lib.units.base.inCelsius
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.DerivativeGain
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.IntegralGain
@@ -21,10 +22,12 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.perSecond
+import java.util.function.Supplier
 
 interface ElevatorIO {
-  class ElevatorInputs(val armInputs: ArmIO.ArmIOInputs) : LoggableInputs {
-    var elevatorAngle = 0.degrees
+  class ElevatorInputs() : LoggableInputs {
+
+    var elevatorAngle = Supplier<Angle> {0.degrees}
 
     var elevatorPosition = 0.0.inches
     var elevatorVelocity = 0.0.inches.perSecond

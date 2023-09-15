@@ -63,7 +63,7 @@ class Arm(private val io: ArmIO) {
       prevArmSetpoint
     )
 
-  private var armFeedforward: ArmFeedforward
+  private var armFeedforward:ArmFeedforward
 
   private var currentArmRequest = ArmRequests.UNINITIALIZED
 

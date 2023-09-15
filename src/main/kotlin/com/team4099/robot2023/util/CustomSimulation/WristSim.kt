@@ -15,6 +15,7 @@ import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.inKilogramsMeterSquared
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.sin
+import java.util.function.Supplier
 
 class WristSim(
   private val gearbox: DCMotor,
@@ -24,7 +25,7 @@ class WristSim(
   private val minAngle: Angle,
   private val maxAngle: Angle,
   private val simulateGravity: Boolean,
-  private var elevatorAngle: Angle
+  private val initialElevatorAngle: Angle
 ) : SingleJointedArmSim(
   gearbox,
   gearing,
@@ -35,9 +36,10 @@ class WristSim(
   simulateGravity
 ) {
 
-  fun updateElevatorAngle(angle: Angle) {
-    elevatorAngle = angle
-  }
+  var elevatorAngle = initialElevatorAngle
+    set(value) {
+      field = value
+    }
 
 
   override fun updateX(
@@ -51,7 +53,7 @@ class WristSim(
           m_plant.a.times(x).plus(m_plant.b.times(_u))
         if (simulateGravity) {
           val alphaGrav =
-            -14.700000000000001 * (Math.sin(x[0, 0]) * elevatorAngle.sin + Math.cos(x[0, 0]) * elevatorAngle.cos) / armLen.inMeters
+            -14.700000000000001 * -9.8 * (Math.sin(x[0, 0]) * initialElevatorAngle.sin + Math.cos(x[0, 0]) * initialElevatorAngle.cos) / armLen.inMeters
           xdot = xdot.plus(VecBuilder.fill(0.0, alphaGrav))
         }
         xdot
