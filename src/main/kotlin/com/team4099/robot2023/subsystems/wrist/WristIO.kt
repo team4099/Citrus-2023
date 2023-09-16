@@ -1,4 +1,4 @@
-package com.team4099.robot2023.subsystems.Manipulator
+package com.team4099.robot2023.subsystems.wrist
 
 import com.team4099.robot2023.subsystems.arm.ArmIO
 import org.littletonrobotics.junction.LogTable
@@ -25,8 +25,9 @@ import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 
-interface ManipulatorIO {
-  class ManipulatorIOInputs : LoggableInputs {
+
+interface WristIO {
+  class WristIOInputs : LoggableInputs {
 
     var elevatorAngle = Supplier<Angle> {0.degrees}
 
@@ -95,7 +96,7 @@ interface ManipulatorIO {
       table?.getDouble("rollerTempCelsius", rollerTemp.inCelsius)?.let { rollerTemp = it.celsius }
     }
   }
-  fun updateInputs(inputs: ManipulatorIOInputs)
+  fun updateInputs(inputs: WristIOInputs)
 
   /**
    * Sets the voltage of the roller motor but also checks to make sure the voltage doesn't exceed

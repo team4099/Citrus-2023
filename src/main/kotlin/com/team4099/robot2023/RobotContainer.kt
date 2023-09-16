@@ -1,14 +1,14 @@
 package com.team4099.robot2023
 
 import com.team4099.robot2023.auto.AutonomousSelector
-import com.team4099.robot2023.commands.Manipulator.ManipulatorTestCommand
+import com.team4099.robot2023.commands.wrist.WristTestCommand
 import com.team4099.robot2023.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2023.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2023.config.ControlBoard
 import com.team4099.robot2023.config.constants.Constants
-import com.team4099.robot2023.subsystems.Manipulator.Manipulator
-import com.team4099.robot2023.subsystems.Manipulator.ManipulatorIONeo
-import com.team4099.robot2023.subsystems.Manipulator.ManipulatorIOSim
+import com.team4099.robot2023.subsystems.wrist.Wrist
+import com.team4099.robot2023.subsystems.wrist.WristIONeo
+import com.team4099.robot2023.subsystems.wrist.WristIOSim
 import com.team4099.robot2023.subsystems.arm.Arm
 import com.team4099.robot2023.subsystems.arm.ArmIONeo
 import com.team4099.robot2023.subsystems.arm.ArmIOSim
@@ -28,9 +28,10 @@ import java.util.function.Supplier
 
 object RobotContainer {
   private val drivetrain: Drivetrain
+
   private val arm: Arm
   private val elevator: Elevator
-  private val manipulator: Manipulator
+  private val wrist: Wrist
 
   init {
     if (RobotBase.isReal()) {
@@ -38,17 +39,17 @@ object RobotContainer {
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
       arm = Arm(ArmIONeo)
       elevator = Elevator(ElevatorIONeo)
-      manipulator = Manipulator(ManipulatorIONeo)
+      wrist = Wrist(WristIONeo)
     } else {
       // Simulation implementations
       drivetrain = Drivetrain(object : GyroIO {}, DrivetrainIOSim)
       arm = Arm(ArmIOSim)
       elevator = Elevator(ElevatorIOSim)
-      manipulator = Manipulator(ManipulatorIOSim)
+      wrist = Wrist(WristIOSim)
+    }
 
       elevator.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
-      manipulator.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
-    }
+      wrist.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
   }
 
   fun mapDefaultCommands() {
@@ -73,7 +74,7 @@ object RobotContainer {
 
   fun zeroSensors() {
     drivetrain.zeroSensors()
-    manipulator.zeroWrist()
+    wrist.zeroWrist()
   }
 
   fun zeroAngle(toAngle: Angle) {
@@ -100,7 +101,7 @@ object RobotContainer {
     //    ControlBoard.autoLevel.whileActiveContinuous(
     //      GoToAngle(drivetrain).andThen(AutoLevel(drivetrain))
     //    )
-    ControlBoard.manipulatorTest.whileTrue(ManipulatorTestCommand(manipulator))
+    ControlBoard.manipulatorTest.whileTrue(WristTestCommand(wrist))
   }
 
   fun mapTestControls() {}

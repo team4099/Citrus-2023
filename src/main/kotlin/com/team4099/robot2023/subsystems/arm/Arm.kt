@@ -5,14 +5,12 @@ import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.requests.Request
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
-import com.team4099.robot2023.config.constants.ManipulatorConstants
 import edu.wpi.first.wpilibj.RobotBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.Length
-import org.team4099.lib.units.base.Second
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle

@@ -16,7 +16,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 
-object ManipulatorConstants {
+object WristConstants {
   object PID {
     val NEO_KP = 0.0.volts / 1.degrees
     val NEO_KI = 0.0.volts / (1.degrees * 1.seconds)
@@ -32,9 +32,10 @@ object ManipulatorConstants {
     val ARM_KA = 0.0.volts / 1.0.radians.perSecond.perSecond
   }
 
+  val TOLERANCE = 1.degrees
   val ARM_VOLTAGE_COMPENSATION = 0.volts
-  val WRIST_MIN_ROTATION = -45.degrees
-  val WRIST_MAX_ROTATION = 150.degrees
+  val MIN_ROTATION = -45.degrees
+  val MAX_ROTATION = 150.degrees
   val HOMING_APPLIED_VOLTAGE = 0.volts
   val HOMING_STALL_TIME_THRESHOLD = 0.seconds
   val HOMING_STALL_CURRENT = 0.amps
@@ -75,5 +76,5 @@ object ManipulatorConstants {
   val CONE_IN = -12.volts
   val CUBE_IDLE = 3.volts
   val CONE_IDLE = -3.volts
-  val MANIPULATOR_WAIT_BEFORE_DETECT_CURRENT_SPIKE = 0.seconds
+  val WRIST_WAIT_BEFORE_DETECT_CURRENT_SPIKE = 0.seconds
 }

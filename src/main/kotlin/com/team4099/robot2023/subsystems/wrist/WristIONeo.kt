@@ -1,11 +1,11 @@
-package com.team4099.robot2023.subsystems.Manipulator
+package com.team4099.robot2023.subsystems.wrist
 
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import com.revrobotics.SparkMaxPIDController
 import com.team4099.lib.math.clamp
 import com.team4099.robot2023.config.constants.Constants
-import com.team4099.robot2023.config.constants.ManipulatorConstants
+import com.team4099.robot2023.config.constants.WristConstants
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
@@ -22,7 +22,7 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.sparkMaxAngularMechanismSensor
 
-object ManipulatorIONeo : ManipulatorIO {
+object WristIONeo : WristIO {
   private val rollerSparkMax =
     CANSparkMax(Constants.Manipulator.ROLLER_MOTOR, CANSparkMaxLowLevel.MotorType.kBrushless)
   private val wristSparkMax =
@@ -31,15 +31,15 @@ object ManipulatorIONeo : ManipulatorIO {
   private val rollerSensor =
     sparkMaxAngularMechanismSensor(
       rollerSparkMax,
-      ManipulatorConstants.ROLLER_GEAR_RATIO.asDrivenOverDriving,
-      ManipulatorConstants.ROLLER_VOLTAGE_COMPENSATION,
+      WristConstants.ROLLER_GEAR_RATIO.asDrivenOverDriving,
+      WristConstants.ROLLER_VOLTAGE_COMPENSATION,
     )
 
   private val wristSensor =
     sparkMaxAngularMechanismSensor(
       wristSparkMax,
-      ManipulatorConstants.WRIST_GEAR_RATIO.asDrivenOverDriving,
-      ManipulatorConstants.WRIST_VOLTAGE_COMPENSATION,
+      WristConstants.WRIST_GEAR_RATIO.asDrivenOverDriving,
+      WristConstants.WRIST_VOLTAGE_COMPENSATION,
     )
 
   private val wristPIDController: SparkMaxPIDController = wristSparkMax.pidController
@@ -48,11 +48,11 @@ object ManipulatorIONeo : ManipulatorIO {
     rollerSparkMax.restoreFactoryDefaults()
     rollerSparkMax.clearFaults()
 
-    rollerSparkMax.enableVoltageCompensation(ManipulatorConstants.VOLTAGE_COMPENSATION.inVolts)
-    rollerSparkMax.setSmartCurrentLimit(ManipulatorConstants.ROLLER_CURRENT_LIMIT.inAmperes.toInt())
-    rollerSparkMax.inverted = ManipulatorConstants.ROLLER_MOTOR_INVERTED
+    rollerSparkMax.enableVoltageCompensation(WristConstants.VOLTAGE_COMPENSATION.inVolts)
+    rollerSparkMax.setSmartCurrentLimit(WristConstants.ROLLER_CURRENT_LIMIT.inAmperes.toInt())
+    rollerSparkMax.inverted = WristConstants.ROLLER_MOTOR_INVERTED
 
-    rollerSparkMax.openLoopRampRate = ManipulatorConstants.ROLLER_RAMP_RATE.inPercentOutputPerSecond
+    rollerSparkMax.openLoopRampRate = WristConstants.ROLLER_RAMP_RATE.inPercentOutputPerSecond
     rollerSparkMax.idleMode = CANSparkMax.IdleMode.kCoast
 
     rollerSparkMax.burnFlash()
@@ -60,15 +60,15 @@ object ManipulatorIONeo : ManipulatorIO {
     wristSparkMax.restoreFactoryDefaults()
     wristSparkMax.clearFaults()
 
-    wristSparkMax.enableVoltageCompensation(ManipulatorConstants.WRIST_VOLTAGE_COMPENSATION.inVolts)
-    wristSparkMax.setSmartCurrentLimit(ManipulatorConstants.WRIST_CURRENT_LIMIT.inAmperes.toInt())
-    wristSparkMax.inverted = ManipulatorConstants.WRIST_MOTOR_INVERTED
+    wristSparkMax.enableVoltageCompensation(WristConstants.WRIST_VOLTAGE_COMPENSATION.inVolts)
+    wristSparkMax.setSmartCurrentLimit(WristConstants.WRIST_CURRENT_LIMIT.inAmperes.toInt())
+    wristSparkMax.inverted = WristConstants.WRIST_MOTOR_INVERTED
     wristSparkMax.idleMode = CANSparkMax.IdleMode.kBrake
 
     wristSparkMax.burnFlash()
   }
 
-  override fun updateInputs(inputs: ManipulatorIO.ManipulatorIOInputs) {
+  override fun updateInputs(inputs: WristIO.ManipulatorIOInputs) {
     inputs.rollerVelocity = rollerSensor.velocity
     inputs.rollerAppliedVoltage = rollerSparkMax.busVoltage.volts * rollerSparkMax.appliedOutput
     inputs.rollerStatorCurrent = rollerSparkMax.outputCurrent.amps
@@ -98,8 +98,8 @@ object ManipulatorIONeo : ManipulatorIO {
     rollerSparkMax.setVoltage(
       clamp(
         voltage,
-        -ManipulatorConstants.VOLTAGE_COMPENSATION,
-        ManipulatorConstants.VOLTAGE_COMPENSATION
+        -WristConstants.VOLTAGE_COMPENSATION,
+        WristConstants.VOLTAGE_COMPENSATION
       )
         .inVolts
     )
@@ -114,8 +114,8 @@ object ManipulatorIONeo : ManipulatorIO {
     wristSparkMax.setVoltage(
       clamp(
         voltage,
-        -ManipulatorConstants.VOLTAGE_COMPENSATION,
-        ManipulatorConstants.VOLTAGE_COMPENSATION
+        -WristConstants.VOLTAGE_COMPENSATION,
+        WristConstants.VOLTAGE_COMPENSATION
       )
         .inVolts
     )
