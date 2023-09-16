@@ -218,6 +218,8 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
   override fun periodic() {
     io.updateInputs(inputs)
 
+    wristFeedforward.elevatorAngle = inputs.elevatorAngle.get()
+
     if (kP.hasChanged() || kI.hasChanged() || kD.hasChanged()) {
       io.configPID(kP.get(), kI.get(), kD.get())
     }
