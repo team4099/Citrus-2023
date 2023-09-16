@@ -4,9 +4,11 @@ import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableNumber
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.requests.Request
+import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.ElevatorConstants
 import com.team4099.robot2023.subsystems.arm.Arm
+import com.team4099.robot2023.util.CustomFeedForward.PivotElevatorFeedForward
 import edu.wpi.first.wpilibj.RobotBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ElevatorFeedforward
@@ -38,23 +40,25 @@ import org.team4099.lib.units.perSecond
 class Elevator(val io: ElevatorIO) {
   val inputs = ElevatorIO.ElevatorInputs()
 
-  private var elevatorFeedforwardFirstStage: ElevatorFeedforward =
-    ElevatorFeedforward(
+  private var elevatorFeedforwardFirstStage: PivotElevatorFeedForward =
+    PivotElevatorFeedForward(
       ElevatorConstants.REAL_ELEVATOR_KS_FIRST_STAGE,
       ElevatorConstants.ELEVATOR_KG_FIRST_STAGE,
       ElevatorConstants.ELEVATOR_KV_FIRST_STAGE,
-      ElevatorConstants.ELEVATOR_KA_FIRST_STAGE
+      ElevatorConstants.ELEVATOR_KA_FIRST_STAGE,
+      ArmConstants.MIN_ROTATION
     )
-  private var elevatorFeedforwardSecondStage: ElevatorFeedforward =
-    ElevatorFeedforward(
+  private var elevatorFeedforwardSecondStage: PivotElevatorFeedForward =
+    PivotElevatorFeedForward(
       ElevatorConstants.REAL_ELEVATOR_KS_SECOND_STAGE,
       ElevatorConstants.ELEVATOR_KG_SECOND_STAGE,
       ElevatorConstants.ELEVATOR_KV_SECOND_STAGE,
-      ElevatorConstants.ELEVATOR_KA_SECOND_STAGE
+      ElevatorConstants.ELEVATOR_KA_SECOND_STAGE,
+      ArmConstants.MIN_ROTATION
     )
 
   // PID and Feedforward Values
-  var elevatorFeedforward: ElevatorFeedforward = elevatorFeedforwardFirstStage
+  var elevatorFeedforward: PivotElevatorFeedForward = elevatorFeedforwardFirstStage
     get() {
       return if (inputs.elevatorPosition > ElevatorConstants.FIRST_STAGE_HEIGHT) {
         elevatorFeedforwardSecondStage
@@ -182,19 +186,22 @@ class Elevator(val io: ElevatorIO) {
       kD.initDefault(ElevatorConstants.REAL_KD)
 
       elevatorFeedforwardSecondStage =
-        ElevatorFeedforward(
+        PivotElevatorFeedForward(
           ElevatorConstants.REAL_ELEVATOR_KS_SECOND_STAGE,
           ElevatorConstants.ELEVATOR_KG_SECOND_STAGE,
           ElevatorConstants.ELEVATOR_KV_SECOND_STAGE,
-          ElevatorConstants.ELEVATOR_KA_SECOND_STAGE
+          ElevatorConstants.ELEVATOR_KA_SECOND_STAGE,
+          ArmConstants.MIN_ROTATION
+
         )
 
       elevatorFeedforwardFirstStage =
-        ElevatorFeedforward(
+        PivotElevatorFeedForward(
           ElevatorConstants.REAL_ELEVATOR_KS_FIRST_STAGE,
           ElevatorConstants.ELEVATOR_KG_FIRST_STAGE,
           ElevatorConstants.ELEVATOR_KV_FIRST_STAGE,
-          ElevatorConstants.ELEVATOR_KA_FIRST_STAGE
+          ElevatorConstants.ELEVATOR_KA_FIRST_STAGE,
+          ArmConstants.MIN_ROTATION
         )
     } else {
       isHomed = true
@@ -204,19 +211,21 @@ class Elevator(val io: ElevatorIO) {
       kD.initDefault(ElevatorConstants.SIM_KD)
 
       elevatorFeedforwardSecondStage =
-        ElevatorFeedforward(
+        PivotElevatorFeedForward(
           ElevatorConstants.REAL_ELEVATOR_KS_SECOND_STAGE,
           ElevatorConstants.ELEVATOR_KG_SECOND_STAGE,
           ElevatorConstants.ELEVATOR_KV_SECOND_STAGE,
-          ElevatorConstants.ELEVATOR_KA_SECOND_STAGE
+          ElevatorConstants.ELEVATOR_KA_SECOND_STAGE,
+          ArmConstants.MIN_ROTATION
         )
 
       elevatorFeedforwardFirstStage =
-        ElevatorFeedforward(
+        PivotElevatorFeedForward(
           ElevatorConstants.REAL_ELEVATOR_KS_FIRST_STAGE,
           ElevatorConstants.ELEVATOR_KG_FIRST_STAGE,
           ElevatorConstants.ELEVATOR_KV_FIRST_STAGE,
-          ElevatorConstants.ELEVATOR_KA_FIRST_STAGE
+          ElevatorConstants.ELEVATOR_KA_FIRST_STAGE,
+          ArmConstants.MIN_ROTATION
         )
 
       io.configPID(kP.get(), kI.get(), kD.get())
@@ -225,6 +234,8 @@ class Elevator(val io: ElevatorIO) {
 
   fun periodic() {
     io.updateInputs(inputs)
+
+    elevatorFeedforward.elevatorAngle = inputs.elevatorAngle.get()
 
     if (kP.hasChanged() || kI.hasChanged() || kD.hasChanged()) {
       io.configPID(kP.get(), kI.get(), kD.get())

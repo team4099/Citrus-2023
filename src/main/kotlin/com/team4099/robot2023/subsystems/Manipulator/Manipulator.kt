@@ -2,9 +2,11 @@ package com.team4099.robot2023.subsystems.Manipulator
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.ManipulatorConstants
 import com.team4099.robot2023.superstructure.Request
+import com.team4099.robot2023.util.CustomFeedForward.WristFeedforward
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
@@ -32,7 +34,7 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
 
   val inputs = ManipulatorIO.ManipulatorIOInputs()
 
-  lateinit var wristFeedforward: ArmFeedforward
+  lateinit var wristFeedforward: WristFeedforward
 
   private val kP =
     LoggedTunableValue("Manipulator/kP", Pair({ it.inVoltsPerDegree }, { it.volts.perDegree }))
@@ -190,11 +192,12 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
       kD.initDefault(ManipulatorConstants.PID.NEO_KD)
 
       var wristFeedforward =
-        ArmFeedforward(
+        WristFeedforward(
           ManipulatorConstants.PID.ARM_KS,
           ManipulatorConstants.PID.ARM_KG,
           ManipulatorConstants.PID.ARM_KV,
-          ManipulatorConstants.PID.ARM_KA
+          ManipulatorConstants.PID.ARM_KA,
+          ArmConstants.MIN_ROTATION
         )
     } else {
       kP.initDefault(ManipulatorConstants.PID.SIM_KP)
@@ -202,11 +205,12 @@ class Manipulator(private val io: ManipulatorIO) : SubsystemBase() {
       kD.initDefault(ManipulatorConstants.PID.SIM_KD)
 
       wristFeedforward =
-        ArmFeedforward(
+        WristFeedforward(
           0.0.volts,
           ManipulatorConstants.PID.ARM_KG,
           ManipulatorConstants.PID.ARM_KV,
-          ManipulatorConstants.PID.ARM_KA
+          ManipulatorConstants.PID.ARM_KA,
+          ArmConstants.MIN_ROTATION
         )
     }
   }
