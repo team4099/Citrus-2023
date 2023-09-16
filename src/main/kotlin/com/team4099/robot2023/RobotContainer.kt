@@ -9,30 +9,47 @@ import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.subsystems.wrist.Wrist
 import com.team4099.robot2023.subsystems.wrist.WristIONeo
 import com.team4099.robot2023.subsystems.wrist.WristIOSim
+import com.team4099.robot2023.subsystems.arm.Arm
+import com.team4099.robot2023.subsystems.arm.ArmIONeo
+import com.team4099.robot2023.subsystems.arm.ArmIOSim
 import com.team4099.robot2023.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2023.subsystems.drivetrain.drive.DrivetrainIOReal
 import com.team4099.robot2023.subsystems.drivetrain.drive.DrivetrainIOSim
 import com.team4099.robot2023.subsystems.drivetrain.gyro.GyroIO
 import com.team4099.robot2023.subsystems.drivetrain.gyro.GyroIOPigeon2
+import com.team4099.robot2023.subsystems.elevator.Elevator
+import com.team4099.robot2023.subsystems.elevator.ElevatorIONeo
+import com.team4099.robot2023.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2023.util.driver.Ryan
 import edu.wpi.first.wpilibj.RobotBase
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.derived.Angle
+import java.util.function.Supplier
 
 object RobotContainer {
   private val drivetrain: Drivetrain
+
+  private val arm: Arm
+  private val elevator: Elevator
   private val wrist: Wrist
 
   init {
     if (RobotBase.isReal()) {
       // Real Hardware Implementations
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
+      arm = Arm(ArmIONeo)
+      elevator = Elevator(ElevatorIONeo)
       wrist = Wrist(WristIONeo)
     } else {
       // Simulation implementations
       drivetrain = Drivetrain(object : GyroIO {}, DrivetrainIOSim)
+      arm = Arm(ArmIOSim)
+      elevator = Elevator(ElevatorIOSim)
       wrist = Wrist(WristIOSim)
     }
+
+      elevator.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
+      wrist.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
   }
 
   fun mapDefaultCommands() {

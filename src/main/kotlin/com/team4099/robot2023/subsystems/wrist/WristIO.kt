@@ -1,5 +1,6 @@
 package com.team4099.robot2023.subsystems.wrist
 
+import com.team4099.robot2023.subsystems.arm.ArmIO
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.base.amps
@@ -22,9 +23,14 @@ import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inRotationsPerMinute
 import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
+import java.util.function.Supplier
+
 
 interface WristIO {
   class WristIOInputs : LoggableInputs {
+
+    var elevatorAngle = Supplier<Angle> {0.degrees}
+
     val statorCurrent = 0.amps
     var isSimulating = false
     var wristPosition: Angle = 0.0.degrees

@@ -1,12 +1,13 @@
 package com.team4099.robot2023.subsystems.elevator
 
 import com.team4099.lib.math.clamp
+import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.ElevatorConstants
 import com.team4099.robot2023.subsystems.falconspin.MotorChecker
 import com.team4099.robot2023.subsystems.falconspin.MotorCollection
 import com.team4099.robot2023.subsystems.falconspin.SimulatedMotor
-import com.team4099.robot2023.util.ElevatorSim
+import com.team4099.robot2023.util.CustomSimulation.PivotElevatorSim
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
@@ -28,15 +29,15 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
 object ElevatorIOSim : ElevatorIO {
-  val elevatorSim: ElevatorSim =
-    ElevatorSim(
+  val elevatorSim: PivotElevatorSim =
+    PivotElevatorSim(
       DCMotor.getNEO(2),
       ElevatorConstants.GEAR_RATIO.asDrivingOverDriven,
       ElevatorConstants.CARRIAGE_MASS,
       ElevatorConstants.SPOOL_RADIUS,
       ElevatorConstants.ELEVATOR_MAX_RETRACTION,
       ElevatorConstants.ELEVATOR_MAX_EXTENSION,
-      ElevatorConstants.ELEVATOR_ANGLE,
+      ArmConstants.MIN_ROTATION,
       true,
     )
 
@@ -65,6 +66,7 @@ object ElevatorIOSim : ElevatorIO {
   private var lastAppliedVoltage = 0.0.volts
 
   override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
+    elevatorSim.elevatorAngle = inputs.elevatorAngle.get()
     elevatorSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
     inputs.elevatorPosition = elevatorSim.positionMeters.meters

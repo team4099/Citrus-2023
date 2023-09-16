@@ -3,8 +3,10 @@ package com.team4099.robot2023.subsystems.wrist
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.requests.Request
+import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.config.constants.WristConstants
+import com.team4099.robot2023.util.CustomFeedForward.WristFeedforward
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
@@ -34,7 +36,7 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
 
   val inputs = WristIO.WristIOInputs()
 
-  lateinit var wristFeedforward: ArmFeedforward
+  lateinit var wristFeedforward: WristFeedforward
 
   private val kP =
     LoggedTunableValue("Wrist/kP", Pair({ it.inVoltsPerDegree }, { it.volts.perDegree }))
@@ -194,11 +196,12 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
       kD.initDefault(WristConstants.PID.NEO_KD)
 
       var wristFeedforward =
-        ArmFeedforward(
+        WristFeedforward(
           WristConstants.PID.ARM_KS,
           WristConstants.PID.ARM_KG,
           WristConstants.PID.ARM_KV,
-          WristConstants.PID.ARM_KA
+          WristConstants.PID.ARM_KA,
+          ArmConstants.MIN_ROTATION
         )
     } else {
       kP.initDefault(WristConstants.PID.SIM_KP)
@@ -206,11 +209,12 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
       kD.initDefault(WristConstants.PID.SIM_KD)
 
       wristFeedforward =
-        ArmFeedforward(
+        WristFeedforward(
           0.0.volts,
           WristConstants.PID.ARM_KG,
           WristConstants.PID.ARM_KV,
-          WristConstants.PID.ARM_KA
+          WristConstants.PID.ARM_KA,
+          ArmConstants.MIN_ROTATION
         )
     }
   }
@@ -283,7 +287,7 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
     // When the forward or reverse limit is reached, set the voltage to 0
     // Else move the wrist to the setpoint position
     if (isOutOfBounds(setpoint.velocity)) {
-      io.setWristVoltage(wristFeedforward.calculate(inputs.wristPosition, 0.degrees.perSecond))
+      io.setWristVoltage(wristFeedforward.calculate(inputs.wristPosition, 0.degrees.perSecond, 0.degrees.perSecond.perSecond))
     } else {
       io.setWristPosition(setpoint.position, feedforward)
     }
