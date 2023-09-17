@@ -219,7 +219,6 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
     }
   }
 
-  fun generateAndExecuteWristProfile(targetPosition: Length) {}
 
   override fun periodic() {
     io.updateInputs(inputs)

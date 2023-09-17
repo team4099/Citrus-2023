@@ -167,6 +167,8 @@ object WristIONeo : WristIO {
     }
   }
 
+  override fun zeroEncoder() {}
+
   /**
    * Sets the wrist motor brake mode
    *

@@ -10,6 +10,7 @@ import com.team4099.robot2023.config.constants.ElevatorConstants
 import com.team4099.robot2023.subsystems.arm.Arm
 import com.team4099.robot2023.util.CustomFeedForward.PivotElevatorFeedForward
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ElevatorFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
@@ -37,7 +38,7 @@ import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.inInchesPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 
-class Elevator(val io: ElevatorIO) {
+class Elevator(val io: ElevatorIO) : SubsystemBase() {
   val inputs = ElevatorIO.ElevatorInputs()
 
   private var elevatorFeedforwardFirstStage: PivotElevatorFeedForward =
@@ -232,7 +233,7 @@ class Elevator(val io: ElevatorIO) {
     }
   }
 
-  fun periodic() {
+  override fun periodic() {
     io.updateInputs(inputs)
 
     elevatorFeedforward.elevatorAngle = inputs.elevatorAngle.get()
@@ -244,6 +245,8 @@ class Elevator(val io: ElevatorIO) {
     Logger.getInstance().processInputs("Elevator", inputs)
     Logger.getInstance()
       .recordOutput("Elevator/currentRequest", currentElevatorRequest.name)
+
+    Logger.getInstance().recordOutput("Elevator/isAtTargetedPosition" , isAtTargetedPosition)
   }
 
   /**
@@ -376,7 +379,7 @@ class Elevator(val io: ElevatorIO) {
     }
   }
 
-  fun armOpenLoopRequest(elevatorVoltage: ElectricalPotential): Request {
+  fun elevatorOpenLoopRequest(elevatorVoltage: ElectricalPotential): Request {
     return object : Request() {
       override fun act() {
         updateCurrentRequest(ElevatorRequests.OPEN_LOOP)
@@ -389,7 +392,7 @@ class Elevator(val io: ElevatorIO) {
     }
   }
 
-  fun armClosedLoopRequest(position: Length): Request {
+  fun elevatorClosedLoopRequest(position: Length): Request {
     return object : Request() {
       var armProfile: TrapezoidProfile<Meter> = generateElevatorProfile()
 

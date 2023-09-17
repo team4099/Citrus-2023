@@ -7,6 +7,8 @@ import org.team4099.lib.units.base.percent
 import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.driven
+import org.team4099.lib.units.derived.driving
 import org.team4099.lib.units.derived.gearRatio
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
@@ -22,7 +24,7 @@ object ElevatorConstants {
 
   val SIM_KP = 1.5.volts / 1.inches
   val SIM_KI = 0.0.volts / (1.inches * 1.seconds)
-  val SIM_KD = 0.25.volts / (1.inches.perSecond)
+  val SIM_KD = 0.0.volts / (1.inches.perSecond)
 
   val REAL_ELEVATOR_KS_FIRST_STAGE = 0.54.volts // TODO: Tune later
   val ELEVATOR_KG_FIRST_STAGE = 0.28.volts
@@ -40,7 +42,7 @@ object ElevatorConstants {
   val HOMING_STALL_TIME_THRESHOLD = 0.1.seconds
 
   val VOLTAGE_COMPENSATION = 12.volts
-  val GEAR_RATIO = ((10.0 / 72.0) * (20.0 / 72.0)).gearRatio
+  val GEAR_RATIO = ((72.0.driven / 10.0.driving ) * (72.0.driven / 20.0.driving )).gearRatio
 
   val SPOOL_RADIUS = 0.005.meters * 24.0 / (2 * PI)
 

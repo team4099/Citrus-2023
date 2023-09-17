@@ -65,14 +65,16 @@ object ArmIOSim : ArmIO {
   private val armController =
     PIDController(ArmConstants.PID.SIM_KP, ArmConstants.PID.SIM_KI, ArmConstants.PID.SIM_KD)
 
+  private var lastAppliedVoltage = 0.0.volts
+
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     armSim.elevatorExtension = inputs.elevatorExtension.get()
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
     inputs.armPosition = armSim.angleRads.radians
     inputs.armVelocity = armSim.velocityRadPerSec.radians.perSecond
-    inputs.leaderAppliedVoltage = 0.volts
-    inputs.followerAppliedVoltage = 0.volts
+    inputs.leaderAppliedVoltage = lastAppliedVoltage
+    inputs.followerAppliedVoltage =  lastAppliedVoltage
     inputs.leaderStatorCurrent = armSim.currentDrawAmps.amps
     inputs.followerStatorCurrent = armSim.currentDrawAmps.amps
     inputs.leaderSupplyCurrent = 0.amps
@@ -94,6 +96,7 @@ object ArmIOSim : ArmIO {
   override fun setArmPosition(armPosition: Angle, feedforward: ElectricalPotential) {
     val ff = clamp(feedforward, -12.0.volts, 12.0.volts)
     val feedback = armController.calculate(armSim.angleRads.radians, armPosition)
+    lastAppliedVoltage = ff + feedback
     armSim.setInputVoltage((ff + feedback).inVolts)
   }
 
@@ -103,6 +106,7 @@ object ArmIOSim : ArmIO {
    * @param voltage the voltage to set the arm motor to
    */
   override fun setArmVoltage(voltage: ElectricalPotential) {
+    lastAppliedVoltage = voltage
     armSim.setInputVoltage(
       clamp(voltage, -ArmConstants.VOLTAGE_COMPENSATION, ArmConstants.VOLTAGE_COMPENSATION)
         .inVolts

@@ -28,7 +28,7 @@ object ArmConstants {
     // in 1678's code, so these constants are taken from our ground intake
     // implementation.
 
-    val ARM_KG = 0.86.volts
+    val ARM_KG = 0.4.volts
     val ARM_KV = 1.8.volts / 1.0.radians.perSecond
     val ARM_KA = 0.1.volts / 1.0.radians.perSecond.perSecond
   }

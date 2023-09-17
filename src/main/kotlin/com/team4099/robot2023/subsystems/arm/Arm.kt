@@ -6,6 +6,7 @@ import com.team4099.lib.requests.Request
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
@@ -29,7 +30,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
-class Arm(private val io: ArmIO) {
+class Arm(private val io: ArmIO) : SubsystemBase() {
   val inputs = ArmIO.ArmIOInputs()
 
   private val kP =
@@ -117,7 +118,7 @@ class Arm(private val io: ArmIO) {
   }
 
 
-  fun periodic() {
+  override fun periodic() {
     io.updateInputs(inputs)
 
     // Update the PID values when tuning
@@ -125,7 +126,7 @@ class Arm(private val io: ArmIO) {
       io.configPID(kP.get(), kI.get(), kD.get())
     }
 
-    Logger.getInstance().processInputs("Elevator", inputs)
+    Logger.getInstance().processInputs("Arm", inputs)
     Logger.getInstance()
       .recordOutput("Elevator/currentRequest", currentArmRequest.name)
   }

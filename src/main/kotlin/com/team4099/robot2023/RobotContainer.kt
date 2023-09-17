@@ -1,9 +1,11 @@
 package com.team4099.robot2023
 
 import com.team4099.robot2023.auto.AutonomousSelector
+import com.team4099.robot2023.commands.arm.ArmTestCommand
 import com.team4099.robot2023.commands.wrist.WristTestCommand
 import com.team4099.robot2023.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2023.commands.drivetrain.TeleopDriveCommand
+import com.team4099.robot2023.commands.elevator.elevatorTestCommand
 import com.team4099.robot2023.config.ControlBoard
 import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.subsystems.wrist.Wrist
@@ -104,7 +106,7 @@ object RobotContainer {
     //    ControlBoard.autoLevel.whileActiveContinuous(
     //      GoToAngle(drivetrain).andThen(AutoLevel(drivetrain))
     //    )
-    ControlBoard.manipulatorTest.whileTrue(WristTestCommand(wrist))
+    ControlBoard.manipulatorTest.whileTrue(ArmTestCommand(arm))
   }
 
   fun mapTestControls() {}

@@ -11,6 +11,7 @@ import com.team4099.robot2023.util.CustomSimulation.PivotElevatorSim
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
+import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.PIDController
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
@@ -120,7 +121,6 @@ object ElevatorIOSim : ElevatorIO {
         ElevatorConstants.VOLTAGE_COMPENSATION
       )
     val feedback = elevatorController.calculate(elevatorSim.positionMeters.meters, position)
-
     lastAppliedVoltage = ff + feedback
     elevatorSim.setInputVoltage((ff + feedback).inVolts)
   }

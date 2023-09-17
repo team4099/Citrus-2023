@@ -124,7 +124,7 @@ object WristIOSim : WristIO {
     wristController.setPID(kP, kI, kD)
   }
 
-
+  override fun zeroEncoder(){}
 
   override fun setWristBrakeMode(brake: Boolean) {}
 
