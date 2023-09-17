@@ -3,6 +3,7 @@ package com.team4099.robot2023.subsystems.arm
 import com.team4099.lib.math.clamp
 import com.team4099.robot2023.config.constants.ArmConstants
 import com.team4099.robot2023.config.constants.Constants
+import com.team4099.robot2023.config.constants.ElevatorConstants
 import com.team4099.robot2023.subsystems.falconspin.MotorChecker
 import com.team4099.robot2023.subsystems.falconspin.MotorCollection
 import com.team4099.robot2023.subsystems.falconspin.SimulatedMotor
@@ -14,6 +15,7 @@ import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.DerivativeGain
 import org.team4099.lib.units.derived.ElectricalPotential
@@ -38,6 +40,7 @@ object ArmIOSim : ArmIO {
       ArmConstants.MIN_ROTATION,
       ArmConstants.MAX_ROTATION,
       true,
+      ElevatorConstants.ELEVATOR_MIN_RETRACTION
     )
 
   init {

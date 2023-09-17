@@ -34,7 +34,7 @@ class ArmJointSim (
   : SingleJointedArmSim(
   gearbox,
   gearing,
-  0.0,
+  4.29,
   armLen.inMeters,
   minAngle.inRadians,
   maxAngle.inRadians,

@@ -135,7 +135,7 @@ interface WristIO {
   ) {}
 
   /** Sets the current encoder position to be the zero value */
-  fun zeroEncoder() {}
+  fun zeroEncoder()
 
   /**
    * Sets the roller motor brake mode
