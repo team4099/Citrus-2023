@@ -7,6 +7,5 @@ import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.perSecond
 
-sealed interface RobotRequest {
-
+data class RobotRequest(val armTarget: Angle, val elevatorTarget: Length, val  wristTarget: Angle) {
 }

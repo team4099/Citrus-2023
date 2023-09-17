@@ -5,6 +5,8 @@ import com.team4099.lib.requests.Request
 import com.team4099.robot2023.subsystems.arm.Arm
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
+import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.derived.degrees
 
 class Superstructure(arm: Arm) : SubsystemBase() {
   private var activeRequest: Request = EmptyRequest()
