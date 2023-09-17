@@ -4,7 +4,7 @@ import com.team4099.robot2023.subsystems.superstructure.RobotRequest
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 
-class SuperstructureConstants {
+object SuperstructureConstants {
 
 
   val STOW: RobotRequest = RobotRequest(-9.3.degrees, 0.0.meters, 149.5.degrees)

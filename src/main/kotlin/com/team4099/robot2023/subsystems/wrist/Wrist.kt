@@ -383,7 +383,7 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
     }
   }
 
-  fun wristClosedLoopRequest(angle: Angle): Request {
+  fun wristClosedLoopRequest(angle: Angle, waitForPosition: Boolean): Request {
     return object : Request() {
       var wristProfile: TrapezoidProfile<Radian> = generateWristProfile()
 

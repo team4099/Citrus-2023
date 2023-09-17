@@ -392,7 +392,7 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
     }
   }
 
-  fun elevatorClosedLoopRequest(position: Length): Request {
+  fun elevatorClosedLoopRequest(position: Length, waitForPosition: Boolean): Request {
     return object : Request() {
       var armProfile: TrapezoidProfile<Meter> = generateElevatorProfile()
 

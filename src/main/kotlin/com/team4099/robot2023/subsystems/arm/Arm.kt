@@ -255,7 +255,7 @@ class Arm(private val io: ArmIO) : SubsystemBase() {
     }
   }
 
-  fun armClosedLoopRequest(angle: Angle): Request {
+  fun armClosedLoopRequest(angle: Angle, waitForPosition: Boolean): Request {
     return object : Request() {
       var armProfile: TrapezoidProfile<Radian> = generateArmProfile()
 

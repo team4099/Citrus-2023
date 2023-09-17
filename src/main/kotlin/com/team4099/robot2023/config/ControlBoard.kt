@@ -35,4 +35,21 @@ object ControlBoard {
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
 
   val manipulatorTest = Trigger { driver.aButton }
+
+
+  class ScoringLocation {
+    var grid = 2
+    var column = 2
+    var level = 3
+
+    override fun toString(): String {
+      return "(Targeting Location: Grid $grid column $column row $level)"
+    }
+
+    override fun equals(obj: Any?): Boolean {
+      if (obj == null || obj !is ScoringLocation) return false
+      val other = obj
+      return other.grid == grid && other.column == column && other.level == level
+    }
+  }
 }
