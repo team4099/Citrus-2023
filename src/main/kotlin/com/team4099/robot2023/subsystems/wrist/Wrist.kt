@@ -359,7 +359,7 @@ class Wrist(private val io: WristIO) : SubsystemBase() {
         updateCurrentRequest(WristRequests.HOME)
         if (isAtHome()) {
           hasHomed = true
-          io.zeroEncoder()
+          inputs.wristPosition = 215.degrees
         } else {
           setHomeVoltage()
         }

@@ -60,6 +60,6 @@ kA.inVoltsPerRadianPerSecondPerSecond
     }
 
   fun calculate(position: Angle, velocity: AngularVelocity, acceleration: AngularAcceleration): ElectricalPotential {
-    return (kS.inVolts * velocity.sign + kG.inVolts * (position.sin * elevatorAngle.sin + position.cos * initialElevatorAngle.cos) + kV.inVoltsPerRadianPerSecond * velocity.inRadiansPerSecond + kA.inVoltsPerRadianPerSecondPerSecond * acceleration.inRadiansPerSecondPerSecond).volts
+    return (kS.inVolts * velocity.sign + kG.inVolts * (elevatorAngle.sin * position.sin + elevatorAngle.cos * position.cos) + kV.inVoltsPerRadianPerSecond * velocity.inRadiansPerSecond + kA.inVoltsPerRadianPerSecondPerSecond * acceleration.inRadiansPerSecondPerSecond).volts
   }
 }

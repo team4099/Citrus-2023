@@ -7,6 +7,7 @@ import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.NumericalIntegration
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
+import org.littletonrobotics.junction.Logger
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.derived.Angle
@@ -51,9 +52,10 @@ class WristSim(
       { x: Matrix<N2?, N1>, _u: Matrix<N1?, N1>? ->
         var xdot =
           m_plant.a.times(x).plus(m_plant.b.times(_u))
+        Logger.getInstance().recordOutput("Wrist/alpha", xdot[1, 0])
         if (simulateGravity) {
           val alphaGrav =
-            -14.700000000000001 * (Math.sin(x[0, 0]) * elevatorAngle.sin + Math.cos(x[0, 0]) * elevatorAngle.cos) / armLen.inMeters
+            -14.700000000000001 * (elevatorAngle.sin * Math.sin(x[0,0]) + elevatorAngle.cos * Math.cos(x[0, 0]))/ armLen.inMeters
           xdot = xdot.plus(VecBuilder.fill(0.0, alphaGrav))
         }
         xdot

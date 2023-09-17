@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 
 class Superstructure(arm: Arm) : SubsystemBase() {
-  var activeRequest: Request = EmptyRequest()
+  private var activeRequest: Request = EmptyRequest()
   var requestQueue = ArrayList<Request>()
   var hasNewRequest = false
   var allRequestsComplete = false

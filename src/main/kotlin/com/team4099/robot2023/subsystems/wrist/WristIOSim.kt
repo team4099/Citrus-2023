@@ -22,6 +22,7 @@ import org.team4099.lib.units.derived.IntegralGain
 import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
+import org.team4099.lib.units.derived.asDrivenOverDriving
 import org.team4099.lib.units.derived.asDrivingOverDriven
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inKilogramsMeterSquared
@@ -123,7 +124,7 @@ object WristIOSim : WristIO {
     wristController.setPID(kP, kI, kD)
   }
 
-  override fun zeroEncoder() {}
+
 
   override fun setWristBrakeMode(brake: Boolean) {}
 

@@ -68,7 +68,7 @@ object WristIONeo : WristIO {
     wristSparkMax.burnFlash()
   }
 
-  override fun updateInputs(inputs: WristIO.ManipulatorIOInputs) {
+  override fun updateInputs(inputs: WristIO.WristIOInputs) {
     inputs.rollerVelocity = rollerSensor.velocity
     inputs.rollerAppliedVoltage = rollerSparkMax.busVoltage.volts * rollerSparkMax.appliedOutput
     inputs.rollerStatorCurrent = rollerSparkMax.outputCurrent.amps

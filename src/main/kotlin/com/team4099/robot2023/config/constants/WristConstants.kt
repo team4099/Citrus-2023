@@ -24,18 +24,18 @@ object WristConstants {
 
     val SIM_KP = 0.2.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val SIM_KD = 0.4.volts / (1.degrees.perSecond)
+    val SIM_KD = 0.0.volts / (1.degrees.perSecond)
 
     val ARM_KS = 0.0.volts
-    val ARM_KG = 0.21.volts
+    val ARM_KG = 0.2.volts
     val ARM_KV = 1.01.volts / 1.0.radians.perSecond
     val ARM_KA = 0.0.volts / 1.0.radians.perSecond.perSecond
   }
 
   val TOLERANCE = 1.degrees
   val ARM_VOLTAGE_COMPENSATION = 0.volts
-  val MIN_ROTATION = -45.degrees
-  val MAX_ROTATION = 150.degrees
+  val MIN_ROTATION = 0.degrees
+  val MAX_ROTATION = 215.degrees
   val HOMING_APPLIED_VOLTAGE = 0.volts
   val HOMING_STALL_TIME_THRESHOLD = 0.seconds
   val HOMING_STALL_CURRENT = 0.amps
@@ -48,7 +48,7 @@ object WristConstants {
   val ROLLER_GEAR_RATIO = 1.0.gearRatio
   val ROLLER_VOLTAGE_COMPENSATION = 12.volts
   val WRIST_GEAR_RATIO =
-    ((10.0.driving / 72.0.driven) * (20.0.driving / 72.0.driven) * (24.0.driving / 48.0.driven))
+    (( 72.0.driven / 10.0.driving) * (72.0.driven / 20.0.driving ) * (48.0.driven / 24.0.driving ))
       .gearRatio
   val WRIST_VOLTAGE_COMPENSATION = 12.volts
   val ROLLER_MOTOR_INVERTED = false
