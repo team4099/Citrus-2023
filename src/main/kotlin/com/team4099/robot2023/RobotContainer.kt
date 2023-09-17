@@ -23,6 +23,8 @@ import com.team4099.robot2023.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2023.util.driver.Ryan
 import edu.wpi.first.wpilibj.RobotBase
 import org.team4099.lib.smoothDeadband
+import org.team4099.lib.units.base.Length
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import java.util.function.Supplier
 
@@ -48,6 +50,7 @@ object RobotContainer {
       wrist = Wrist(WristIOSim)
     }
 
+      arm.inputs.elevatorExtension = Supplier<Length> {elevator.inputs.elevatorPosition}
       elevator.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
       wrist.inputs.elevatorAngle = Supplier<Angle> {arm.inputs.armPosition}
   }

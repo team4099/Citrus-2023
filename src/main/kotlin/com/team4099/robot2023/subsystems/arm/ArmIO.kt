@@ -2,10 +2,12 @@ package com.team4099.robot2023.subsystems.arm
 
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
 import org.team4099.lib.units.base.inCelsius
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.DerivativeGain
 import org.team4099.lib.units.derived.ElectricalPotential
@@ -19,9 +21,12 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
+import java.util.function.Supplier
 
 interface ArmIO {
   class ArmIOInputs : LoggableInputs {
+    var elevatorExtension = Supplier<Length> {0.meters}
+
     var armPosition: Angle = 0.0.degrees
     var armVelocity = 0.0.degrees.perSecond
 

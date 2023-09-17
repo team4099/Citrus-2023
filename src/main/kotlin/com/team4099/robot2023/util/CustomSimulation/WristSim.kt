@@ -53,7 +53,7 @@ class WristSim(
           m_plant.a.times(x).plus(m_plant.b.times(_u))
         if (simulateGravity) {
           val alphaGrav =
-            -14.700000000000001 * -9.8 * (Math.sin(x[0, 0]) * elevatorAngle.sin + Math.cos(x[0, 0]) * elevatorAngle.cos) / armLen.inMeters
+            -14.700000000000001 * (Math.sin(x[0, 0]) * elevatorAngle.sin + Math.cos(x[0, 0]) * elevatorAngle.cos) / armLen.inMeters
           xdot = xdot.plus(VecBuilder.fill(0.0, alphaGrav))
         }
         xdot

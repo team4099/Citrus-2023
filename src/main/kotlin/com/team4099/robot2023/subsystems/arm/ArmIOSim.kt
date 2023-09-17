@@ -6,6 +6,7 @@ import com.team4099.robot2023.config.constants.Constants
 import com.team4099.robot2023.subsystems.falconspin.MotorChecker
 import com.team4099.robot2023.subsystems.falconspin.MotorCollection
 import com.team4099.robot2023.subsystems.falconspin.SimulatedMotor
+import com.team4099.robot2023.util.CustomSimulation.ArmJointSim
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
 import org.team4099.lib.controller.PIDController
@@ -30,13 +31,12 @@ import org.team4099.lib.units.perSecond
 
 object ArmIOSim : ArmIO {
   val armSim =
-    SingleJointedArmSim(
+    ArmJointSim(
       DCMotor.getNEO(2),
       ArmConstants.SPROCKET_RATIO.asDrivingOverDriven,
-      ArmConstants.MOMENT_OF_INERTIA.inKilogramsMeterSquared,
-      ArmConstants.ARM_LENGTH.inMeters,
-      ArmConstants.MIN_ROTATION.inRadians,
-      ArmConstants.MAX_ROTATION.inRadians,
+      ArmConstants.ARM_LENGTH,
+      ArmConstants.MIN_ROTATION,
+      ArmConstants.MAX_ROTATION,
       true,
     )
 
@@ -63,6 +63,7 @@ object ArmIOSim : ArmIO {
     PIDController(ArmConstants.PID.SIM_KP, ArmConstants.PID.SIM_KI, ArmConstants.PID.SIM_KD)
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
+    armSim.elevatorExtension = inputs.elevatorExtension.get()
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
     inputs.armPosition = armSim.angleRads.radians
