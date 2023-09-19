@@ -16,7 +16,7 @@ class elevatorTestCommand(val elevator: Elevator) : CommandBase() {
   }
 
   override fun initialize() {
-    request = elevator.elevatorClosedLoopRequest(30.inches)
+    request = elevator.elevatorClosedLoopRequest(30.inches, false)
   }
 
   override fun execute() {

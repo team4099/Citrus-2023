@@ -19,9 +19,9 @@ object ArmConstants {
     val NEO_KI = 0.0.volts / (1.degrees * 1.seconds)
     val NEO_KD = 0.0.volts / (1.degrees.perSecond)
 
-    val SIM_KP = 0.1.volts / 1.degrees
+    val SIM_KP = 0.3.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val SIM_KD = 0.01.volts / (1.degrees.perSecond)
+    val SIM_KD = 0.02.volts / (1.degrees.perSecond)
 
     val ARM_KS =
       0.2.volts // TODO: We should tune these feedforward values because they don't seem to exist

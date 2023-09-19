@@ -27,12 +27,12 @@ object ElevatorConstants {
   val SIM_KD = 0.0.volts / (1.inches.perSecond)
 
   val REAL_ELEVATOR_KS_FIRST_STAGE = 0.54.volts // TODO: Tune later
-  val ELEVATOR_KG_FIRST_STAGE = 0.28.volts
+  val ELEVATOR_KG_FIRST_STAGE = 0.2.volts
   val ELEVATOR_KV_FIRST_STAGE = 0.18.volts / 1.inches.perSecond
   val ELEVATOR_KA_FIRST_STAGE = 0.03.volts / 1.meters.perSecond.perSecond
 
   val REAL_ELEVATOR_KS_SECOND_STAGE = 0.25.volts
-  val ELEVATOR_KG_SECOND_STAGE = 0.36.volts
+  val ELEVATOR_KG_SECOND_STAGE = 0.2.volts
   val ELEVATOR_KV_SECOND_STAGE = 0.18.volts / 1.inches.perSecond
   val ELEVATOR_KA_SECOND_STAGE = 0.04.volts / 1.meters.perSecond.perSecond
 

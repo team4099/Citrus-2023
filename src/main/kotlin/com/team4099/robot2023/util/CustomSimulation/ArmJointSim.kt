@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.LinearSystem
 import edu.wpi.first.math.system.NumericalIntegration
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
+import org.littletonrobotics.junction.Logger
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inInches
@@ -49,6 +50,7 @@ class ArmJointSim (
 
   var elevatorExtension = initialElevatorExtension
     set(value) {
+      Logger.getInstance().recordOutput("Arm/elevatorExtension", value.inInches)
       field = value
     }
 
@@ -75,6 +77,7 @@ class ArmJointSim (
     u: Matrix<N1?, N1?>?,
     dtSeconds: Double
   ): Matrix<N2?, N1?>? {
+
     val updatedXhat = NumericalIntegration.rkdp(
       { x: Matrix<N2?, N1>, _u: Matrix<N1?, N1>? ->
         var xdot =

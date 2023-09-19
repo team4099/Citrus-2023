@@ -106,7 +106,7 @@ object RobotContainer {
     //    ControlBoard.autoLevel.whileActiveContinuous(
     //      GoToAngle(drivetrain).andThen(AutoLevel(drivetrain))
     //    )
-    ControlBoard.manipulatorTest.whileTrue(ArmTestCommand(arm))
+    ControlBoard.manipulatorTest.whileActiveOnce(ArmTestCommand(arm, elevator))
   }
 
   fun mapTestControls() {}

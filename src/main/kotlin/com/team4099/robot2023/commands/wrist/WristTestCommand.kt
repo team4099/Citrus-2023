@@ -14,7 +14,7 @@ class WristTestCommand(val wrist: Wrist) : CommandBase() {
   }
 
   override fun initialize() {
-    request = wrist.wristClosedLoopRequest(60.degrees)
+    request = wrist.wristClosedLoopRequest(60.degrees, false)
   }
 
   override fun execute() {
